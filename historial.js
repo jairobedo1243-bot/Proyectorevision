@@ -1,9 +1,23 @@
-const arrayTickets = [];
+const arrayTickets = [
+  "Ticket 1",
+  "Ticket 2",
+  
+];
 
 function mostrarTickets() {
     //muestran la tabla de tickets y ocultan la de reportes
     const tablaTickets =  document.getElementById("tablaTickets");
     const cuerpoTablaTickets = document.getElementById("cuerpoTablaTickets");
+    cuerpoTablaTickets.innerHTML = ""; // Limpiar la tabla antes de mostrar los tickets
+    for (const ticket of arrayTickets) {
+        const fila = document.createElement("tr");
+        const celda = document.createElement("td");
+        celda.textContent = ticket;
+        fila.appendChild(celda);
+        cuerpoTablaTickets.appendChild(fila);
+        
+
+    }
     tablaTickets.classList.remove("d-none");
     //ocultan la tabla de reportes
     const tablaReportes =  document.getElementById("tablaReportes");
