@@ -1,8 +1,7 @@
 const arrayTickets = [
   "Ticket 1",
   "Ticket 2",
-  
-];
+  ];
 
 function mostrarTickets() {
     //muestran la tabla de tickets y ocultan la de reportes
