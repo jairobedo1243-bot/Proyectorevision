@@ -1,44 +1,82 @@
-const arrayTickets = [
-  "Ticket 1",
-  "Ticket 2",
-  ];
+
+const tickets = [
+    { problema: "La PC no enciende", estado: "Abierto" },
+    { problema: "Sin conexión a internet", estado: "Cerrado" }
+];
+
+const reportes = [
+    { fecha: "01/06/2026", equipos: 3, tickets: 2 },
+    { fecha: "02/06/2026", equipos: 5, tickets: 4 }
+];
+
+document.getElementById("botonMostrarTickets").addEventListener("click", function() {
+    mostrarTickets();
+    document.getElementById("tablaReportes").style.display = "none";
+});
+
+document.getElementById("botonMostrarReportes").addEventListener("click", function() {
+    mostrarReportes();
+    document.getElementById("tablaTickets").style.display = "none";
+});
 
 function mostrarTickets() {
-    //muestran la tabla de tickets y ocultan la de reportes
-    const tablaTickets =  document.getElementById("tablaTickets");
-    const cuerpoTablaTickets = document.getElementById("cuerpoTablaTickets");
-    cuerpoTablaTickets.innerHTML = ""; // Limpiar la tabla antes de mostrar los tickets
-    for (const ticket of arrayTickets) {
+    const tabla = document.getElementById("tablaTickets");
+    const cuerpo = document.getElementById("cuerpoTablaTickets");
+    cuerpo.innerHTML = "";
+
+    const encabezado = tabla.querySelector("thead tr");
+    encabezado.innerHTML = "<th>#</th><th>Problema</th><th>Estado</th>";
+
+    for (const i = 0; i < tickets.length; i++) {
         const fila = document.createElement("tr");
-        const celda = document.createElement("td");
-        celda.textContent = ticket;
-        fila.appendChild(celda);
-        cuerpoTablaTickets.appendChild(fila);
-        
 
+        const tdNum = document.createElement("td");
+        tdNum.textContent = i + 1;
+
+        const tdProblema = document.createElement("td");
+        tdProblema.textContent = tickets[i].problema;
+
+        const tdEstado = document.createElement("td");
+        tdEstado.textContent = tickets[i].estado;
+
+        fila.appendChild(tdNum);
+        fila.appendChild(tdProblema);
+        fila.appendChild(tdEstado);
+        cuerpo.appendChild(fila);
     }
-    tablaTickets.classList.remove("d-none");
-    //ocultan la tabla de reportes
-    const tablaReportes =  document.getElementById("tablaReportes");
-    const cuerpoTablaReportes = document.getElementById("cuerpoTablaReportes");
-    tablaReportes.classList.add("d-none");
 
+    tabla.style.display = "table";
 }
 
 function mostrarReportes() {
-    //muestran la tabla de reportes y ocultan la de tickets
-    const tablaReportes =  document.getElementById("tablaReportes");
-    const cuerpoTablaReportes = document.getElementById("cuerpoTablaReportes");
-    tablaReportes.classList.remove("d-none");
-    //ocultan la tabla de tickets
-    const tablaTickets =  document.getElementById("tablaTickets");
-    const cuerpoTablaTickets = document.getElementById("cuerpoTablaTickets");
-    tablaTickets.classList.add("d-none");
+    const tabla = document.getElementById("tablaReportes");
+    const cuerpo = document.getElementById("cuerpoTablaReportes");
+    cuerpo.innerHTML = "";
 
+    const encabezado = tabla.querySelector("thead tr");
+    encabezado.innerHTML = "<th>#</th><th>Fecha</th><th>Equipos</th><th>Tickets</th>";
+
+    for (const i = 0; i < reportes.length; i++) {
+        const fila = document.createElement("tr");
+
+        const tdNum = document.createElement("td");
+        tdNum.textContent = i + 1;
+
+        const tdFecha = document.createElement("td");
+        tdFecha.textContent = reportes[i].fecha;
+
+        const tdEquipos = document.createElement("td");
+        tdEquipos.textContent = reportes[i].equipos;
+
+        const tdTickets = document.createElement("td");
+        tdTickets.textContent = reportes[i].tickets;
+
+        fila.appendChild(tdNum);
+        fila.appendChild(tdFecha);
+        fila.appendChild(tdEquipos);
+        fila.appendChild(tdTickets);
+        cuerpo.appendChild(fila);
+    }
+
+    tabla.style.display = "table";
 }
-
-document.getElementById("botonMostrarTickets").addEventListener("click", mostrarTickets);
-document.getElementById("botonMostrarReportes").addEventListener("click", mostrarReportes);
-
-
-
