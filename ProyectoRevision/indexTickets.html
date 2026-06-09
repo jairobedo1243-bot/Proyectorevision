@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes</title>
+    <title>Tickets</title>
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    
     <header>
         <h1>SGRSI</h1>
 
@@ -26,28 +28,32 @@
         <a href="indexHistorial.html">Historial</a>
 
     </nav>
-
     <main>
-        <section id="reportes">
+        <section id="tickets">
 
-            <h2>Reportes</h2>
+            <h2>Mesa de Ayuda (Tickets)</h2>
 
-            <p>Aquí podrás generar reportes sobre el inventario, préstamos y tickets de soporte.</p>
+            <form id="formTicket" >
 
-           <button id="botonGenerarReporte">Generar Reporte</button>
+                <label>Problema</label>
 
-            <p id="mensajeReporte"></p>
+                <textarea id="problemaTicket"></textarea>
+
+                <button>Crear Ticket</button>
+
+            </form>
+
+            <p id="mensajeTicket"></p>
 
         </section>
     </main>
-
-     <footer>
+    <footer>
 
         <p>SGRSI - Proyecto Bachillerato</p>
 
     </footer>
 
-    <script src="reportes.js"></script>
+    <script src="script.js"></script>
     
 </body>
 </html>
