@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes</title>
+    <title>Préstamos</title>
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    
     <header>
         <h1>SGRSI</h1>
 
@@ -24,30 +26,42 @@
         <a href="indexTickets.html">Tickets</a>
         <a href="indexReportes.html">Reportes</a>
         <a href="indexHistorial.html">Historial</a>
-
     </nav>
 
     <main>
-        <section id="reportes">
+        <section id="prestamos">
 
-            <h2>Reportes</h2>
+            <h2>Registro de Préstamos</h2>
 
-            <p>Aquí podrás generar reportes sobre el inventario, préstamos y tickets de soporte.</p>
+            <form id="formPrestamo">
 
-           <button id="botonGenerarReporte">Generar Reporte</button>
+                <label>Nombre del solicitante</label>
 
-            <p id="mensajeReporte"></p>
+                <input type="text" id="nombreSolicitante">
+
+                <label>Equipo</label>
+
+                <select id="equipoPrestamo">
+
+                    <option value="">Seleccionar equipo</option>
+
+                </select>
+
+                <button id="botonRegistrarPrestamo">Registrar Préstamo</button>
+
+            </form>
+
+           
 
         </section>
     </main>
-
      <footer>
 
         <p>SGRSI - Proyecto Bachillerato</p>
 
     </footer>
 
-    <script src="reportes.js"></script>
-    
+    <script src="script.js"></script>
+
 </body>
 </html>

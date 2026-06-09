@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes</title>
+    <title>Control de Usuarios</title>
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <header>
         <h1>SGRSI</h1>
 
@@ -26,19 +28,28 @@
         <a href="indexHistorial.html">Historial</a>
 
     </nav>
-
     <main>
-        <section id="reportes">
+        <section id="altaUsuarios">
 
-            <h2>Reportes</h2>
+                <h2>Alta de Usuarios</h2>
 
-            <p>Aquí podrás generar reportes sobre el inventario, préstamos y tickets de soporte.</p>
+                <form id="formUsuario">
 
-           <button id="botonGenerarReporte">Generar Reporte</button>
+                    <label>Nombre del usuario</label>
 
-            <p id="mensajeReporte"></p>
+                    <input type="text" id="nombreUsuario" required>
 
-        </section>
+                    <label>Correo electrónico</label>
+
+                    <input type="email" id="correoUsuario" required>
+
+                    <button id="botonAgregarUsuario">Agregar Usuario</button>
+
+                </form>
+
+               
+            </section>
+
     </main>
 
      <footer>
@@ -47,7 +58,7 @@
 
     </footer>
 
-    <script src="reportes.js"></script>
+    <script src="script.js"></script>
     
 </body>
 </html>
