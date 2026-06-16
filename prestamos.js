@@ -3,120 +3,101 @@
 const prestamos = [];
 
 
-const equipos = [
-    { nombre: "PC-01", tipo: "PC", disponible: true },
-    { nombre: "Laptop-01", tipo: "Laptop", disponible: true },
-    { nombre: "Impresora-01", tipo: "Impresora", disponible: true }
-];
+const mensajePrestamo = document.getElementById("mensajePrestamo");
 
 cargarSelectEquipos();
 
 function cargarSelectEquipos() {
     const select = document.getElementById("equipoPrestamo");
-    select.innerHTML = "<option value=''>Seleccionar equipo</option>";
-
-    for (const i = 0; i < equipos.length; i++) {
+    select.innerHTML = "<option value=''>Seleccionar equipo…</option>";
+    for (let i = 0; i < equipos.length; i++) {
         if (equipos[i].disponible) {
-            const opcion = document.createElement("option");
-            opcion.value = i;
-            opcion.textContent = equipos[i].nombre + " (" + equipos[i].tipo + ")";
-            select.appendChild(opcion);
+            const op = document.createElement("option");
+            op.value       = i;
+            op.textContent = equipos[i].nombre + " (" + equipos[i].tipo + ")";
+            select.appendChild(op);
         }
     }
 }
 
-const botonRegistrarPrestamo = document.getElementById("botonRegistrarPrestamo");
+document.getElementById("botonRegistrarPrestamo").addEventListener("click", function () {
+    const solicitante = document.getElementById("nombreSolicitante").value.trim();
+    const indice      = document.getElementById("equipoPrestamo").value;
+    const fechaDev    = document.getElementById("fechaDevolucion").value;
 
-botonRegistrarPrestamo.addEventListener("click", function(event) {
-    event.preventDefault();
+    mostrarMensaje(mensajePrestamo, "", "");
 
-    const solicitante = document.getElementById("nombreSolicitante").value;
-    const indice = document.getElementById("equipoPrestamo").value;
-
-    const mensaje = document.getElementById("mensajePrestamo");
-    if (!mensaje) {
-        mensaje = document.createElement("p");
-        mensaje.id = "mensajePrestamo";
-        document.getElementById("prestamos").appendChild(mensaje);
+    if (solicitante === "") {
+        mostrarMensaje(mensajePrestamo, "Ingresá el nombre del solicitante.", "error");
+        return;
     }
-
-    if (solicitante == "") {
-        mensaje.textContent = "Ingresá el nombre del solicitante.";
+    if (indice === "") {
+        mostrarMensaje(mensajePrestamo, "Seleccioná un equipo.", "error");
         return;
     }
 
-    if (indice == "") {
-        mensaje.textContent = "Seleccioná un equipo.";
-        return;
-    }
+    const idx = parseInt(indice);
+    equipos[idx].disponible = false;
 
-    equipos[indice].disponible = false;
-
-    const prestamo = {
+    prestamos.push({
         solicitante: solicitante,
-        equipo: equipos[indice].nombre,
-        tipo: equipos[indice].tipo,
-        devuelto: false
-    };
+        equipo: equipos[idx].nombre,
+        tipo: equipos[idx].tipo,
+        fechaDevolucion: fechaDev || "—",
+        devuelto: false,
+        equipoIdx: idx
+    });
 
-    prestamos.push(prestamo);
-
-    mensaje.textContent = "Préstamo registrado: " + equipos[indice].nombre + " → " + solicitante;
+    mostrarMensaje(mensajePrestamo, "Préstamo registrado: " + equipos[idx].nombre + " → " + solicitante, "exito");
 
     document.getElementById("nombreSolicitante").value = "";
-    document.getElementById("equipoPrestamo").value = "";
+    document.getElementById("equipoPrestamo").value    = "";
+    document.getElementById("fechaDevolucion").value   = "";
 
     cargarSelectEquipos();
-    mostrarTablaPrestamos();
+    renderTablaPrestamos();
 });
 
-function mostrarTablaPrestamos() {
-    const tablaVieja = document.getElementById("tablaPrestamos");
-    if (tablaVieja) {
-        tablaVieja.remove();
+function renderTablaPrestamos() {
+    const contenedor = document.getElementById("contenedorTablaPrestamos");
+
+    if (prestamos.length === 0) {
+        contenedor.innerHTML = "<p class='empty-state'>No hay préstamos registrados aún.</p>";
+        return;
     }
 
-    const tabla = document.createElement("table");
-    tabla.id = "tablaPrestamos";
+    let html = "<table><thead><tr><th>#</th><th>Solicitante</th><th>Equipo</th><th>Tipo</th><th>Devolución</th><th>Estado</th><th>Acción</th></tr></thead><tbody>";
+    for (let i = 0; i < prestamos.length; i++) {
+        const p = prestamos[i];
+        const badgeClase = p.devuelto ? "badge-success" : "badge-warning";
+        const badgeTexto = p.devuelto ? "Devuelto" : "En préstamo";
+        const accion     = p.devuelto
+            ? "<span style='color:var(--text-muted)'>✓</span>"
+            : "<button class='btn-sm btn-success' onclick='devolverEquipo(" + i + ")'>Devolver</button>";
 
-    const encabezado = tabla.insertRow();
-    encabezado.innerHTML = "<th>Solicitante</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Devolver</th>";
-
-    for (const i = 0; i < prestamos.length; i++) {
-        const fila = tabla.insertRow();
-        fila.insertCell().textContent = prestamos[i].solicitante;
-        fila.insertCell().textContent = prestamos[i].equipo;
-        fila.insertCell().textContent = prestamos[i].tipo;
-        fila.insertCell().textContent = prestamos[i].devuelto ? "Devuelto" : "En préstamo";
-
-        const celdaBtn = fila.insertCell();
-        if (!prestamos[i].devuelto) {
-            const btn = document.createElement("button");
-            btn.textContent = "Devolver";
-            btn.setAttribute("data-indice", i);
-            btn.addEventListener("click", function() {
-                const idx = parseInt(this.getAttribute("data-indice"));
-                devolverEquipo(idx);
-            });
-            celdaBtn.appendChild(btn);
-        } else {
-            celdaBtn.textContent = " ";
-        }
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + p.solicitante + "</td>";
+        html += "<td>" + p.equipo + "</td>";
+        html += "<td>" + p.tipo + "</td>";
+        html += "<td>" + p.fechaDevolucion + "</td>";
+        html += "<td><span class='badge " + badgeClase + "'>" + badgeTexto + "</span></td>";
+        html += "<td>" + accion + "</td>";
+        html += "</tr>";
     }
-
-    document.getElementById("prestamos").appendChild(tabla);
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
 }
 
-function devolverEquipo(indice) {
-    prestamos[indice].devuelto = true;
-
-   for (const i = 0; i < equipos.length; i++) {
-        if (equipos[i].nombre == prestamos[indice].equipo) {
-            equipos[i].disponible = true;
-            break;
-        }
-    }
-
+function devolverEquipo(i) {
+    prestamos[i].devuelto = true;
+    equipos[prestamos[i].equipoIdx].disponible = true;
     cargarSelectEquipos();
-    mostrarTablaPrestamos();
+    renderTablaPrestamos();
+    mostrarMensaje(mensajePrestamo, "Equipo devuelto: " + prestamos[i].equipo, "info");
+}
+
+function mostrarMensaje(el, texto, tipo) {
+    el.textContent = texto;
+    el.className   = "mensaje " + tipo;
 }

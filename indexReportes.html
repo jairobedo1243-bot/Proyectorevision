@@ -1,53 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes</title>
+    <title>SGRSI – Reportes</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>SGRSI</h1>
 
-        <p>
-            Sistema de Gestión de Recursos y Soporte Informático
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
+
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="indexRecursos.html">Inventario</a>
+    <a href="indexUsuarios.html">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html">Tickets</a>
+    <a href="indexReportes.html" class="activo">Reportes</a>
+    <a href="indexHistorial.html">Historial</a>
+</nav>
+
+<main>
+    <section id="reportes">
+        <h2>Reportes del Sistema</h2>
+        <p style="color: var(--text-muted); margin-bottom: 16px; font-size:0.92rem;">
+            Resumen del estado actual del inventario, préstamos y tickets.
         </p>
-    </header>
 
-    <nav>
+        <button type="button" id="botonGenerarReporte">Generar Reporte</button>
 
-        <a href="index.html">Inicio</a>
-        <a href="indexRecursos.html">Inventario</a>
-        <a href="indexUsuarios.html">Alta de Usuarios</a>
-        <a href="indexPrestamos.html">Préstamos</a>
-        <a href="indexTickets.html">Tickets</a>
-        <a href="indexReportes.html">Reportes</a>
-        <a href="indexHistorial.html">Historial</a>
+        <p id="mensajeReporte" class="mensaje"></p>
 
-    </nav>
+        <div id="contenedorReporte"></div>
+    </section>
+</main>
 
-    <main>
-        <section id="reportes">
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
 
-            <h2>Reportes</h2>
-
-            <p>Aquí podrás generar reportes sobre el inventario, préstamos y tickets de soporte.</p>
-
-           <button id="botonGenerarReporte">Generar Reporte</button>
-
-            <p id="mensajeReporte"></p>
-
-        </section>
-    </main>
-
-     <footer>
-
-        <p>SGRSI - Proyecto Bachillerato</p>
-
-    </footer>
-
-    <script src="reportes.js"></script>
-    
+<script src="reportes.js"></script>
 </body>
 </html>

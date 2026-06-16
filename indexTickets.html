@@ -1,59 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tickets</title>
-
+    <title>SGRSI – Tickets</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
-    <header>
-        <h1>SGRSI</h1>
 
-        <p>
-            Sistema de Gestión de Recursos y Soporte Informático
-        </p>
-    </header>
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
 
-    <nav>
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="indexRecursos.html">Inventario</a>
+    <a href="indexUsuarios.html">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html" class="activo">Tickets</a>
+    <a href="indexReportes.html">Reportes</a>
+    <a href="indexHistorial.html">Historial</a>
+</nav>
 
-        <a href="index.html">Inicio</a>
-        <a href="indexRecursos.html">Inventario</a>
-        <a href="indexUsuarios.html">Alta de Usuarios</a>
-        <a href="indexPrestamos.html">Préstamos</a>
-        <a href="indexTickets.html">Tickets</a>
-        <a href="indexReportes.html">Reportes</a>
-        <a href="indexHistorial.html">Historial</a>
+<main>
+    <section id="tickets">
+        <h2>Mesa de Ayuda – Tickets</h2>
 
-    </nav>
-    <main>
-        <section id="tickets">
+        <form id="formTicket">
+            <label for="solicitanteTicket">Solicitante</label>
+            <input type="text" id="solicitanteTicket" placeholder="Ej: Prof. López" required>
 
-            <h2>Mesa de Ayuda (Tickets)</h2>
+            <label for="prioridadTicket">Prioridad</label>
+            <select id="prioridadTicket" required>
+                <option value="">Seleccionar…</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+            </select>
 
-            <form id="formTicket" >
+            <label for="problemaTicket">Descripción del problema</label>
+            <textarea id="problemaTicket" placeholder="Describí el problema con detalle…" required></textarea>
 
-                <label>Problema</label>
+            <button type="submit" id="botonCrearTicket">Crear Ticket</button>
+        </form>
 
-                <textarea id="problemaTicket"></textarea>
+        <p id="mensajeTicket" class="mensaje"></p>
 
-                <button>Crear Ticket</button>
+        <div class="tabla-wrapper" id="contenedorTablaTickets"></div>
+    </section>
+</main>
 
-            </form>
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
 
-            <p id="mensajeTicket"></p>
-
-        </section>
-    </main>
-    <footer>
-
-        <p>SGRSI - Proyecto Bachillerato</p>
-
-    </footer>
-
-    <script src="tickets.js"></script>
-    
+<script src="tickets.js"></script>
 </body>
 </html>

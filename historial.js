@@ -1,82 +1,66 @@
+// =============================================
+// MÓDULO: Historial
+// =============================================
 
-const tickets = [
-    { problema: "La PC no enciende", estado: "Abierto" },
-    { problema: "Sin conexión a internet", estado: "Cerrado" }
+// Datos de muestra pertinentes al sistema
+const ticketsHistorial = [
+    { fecha: "10/06/2026", solicitante: "Prof. García",  problema: "La PC no enciende",          prioridad: "Alta",  estado: "Cerrado" },
+    { fecha: "11/06/2026", solicitante: "Tec. López",    problema: "Sin conexión a internet",    prioridad: "Media", estado: "Cerrado" },
+    { fecha: "12/06/2026", solicitante: "Admin. Sánchez",problema: "Proyector sin señal HDMI",   prioridad: "Alta",  estado: "Abierto" },
+    { fecha: "14/06/2026", solicitante: "Prof. Martínez",problema: "TV sala sin imagen",          prioridad: "Media", estado: "Abierto" }
 ];
 
-const reportes = [
-    { fecha: "01/06/2026", equipos: 3, tickets: 2 },
-    { fecha: "02/06/2026", equipos: 5, tickets: 4 }
+const reportesHistorial = [
+    { fecha: "01/06/2026", equipos: 4, ticketsAbiertos: 2, ticketsCerrados: 1, prestamos: 1 },
+    { fecha: "07/06/2026", equipos: 4, ticketsAbiertos: 1, ticketsCerrados: 3, prestamos: 2 },
+    { fecha: "14/06/2026", equipos: 4, ticketsAbiertos: 2, ticketsCerrados: 2, prestamos: 1 }
 ];
 
-document.getElementById("botonMostrarTickets").addEventListener("click", function() {
+const contenedor = document.getElementById("contenedorHistorial");
+
+document.getElementById("botonMostrarTickets").addEventListener("click", function () {
     mostrarTickets();
-    document.getElementById("tablaReportes").style.display = "none";
 });
 
-document.getElementById("botonMostrarReportes").addEventListener("click", function() {
+document.getElementById("botonMostrarReportes").addEventListener("click", function () {
     mostrarReportes();
-    document.getElementById("tablaTickets").style.display = "none";
 });
 
 function mostrarTickets() {
-    const tabla = document.getElementById("tablaTickets");
-    const cuerpo = document.getElementById("cuerpoTablaTickets");
-    cuerpo.innerHTML = "";
-
-    const encabezado = tabla.querySelector("thead tr");
-    encabezado.innerHTML = "<th>#</th><th>Problema</th><th>Estado</th>";
-
-    for (const i = 0; i < tickets.length; i++) {
-        const fila = document.createElement("tr");
-
-        const tdNum = document.createElement("td");
-        tdNum.textContent = i + 1;
-
-        const tdProblema = document.createElement("td");
-        tdProblema.textContent = tickets[i].problema;
-
-        const tdEstado = document.createElement("td");
-        tdEstado.textContent = tickets[i].estado;
-
-        fila.appendChild(tdNum);
-        fila.appendChild(tdProblema);
-        fila.appendChild(tdEstado);
-        cuerpo.appendChild(fila);
+    let html = "<table><thead><tr><th>#</th><th>Fecha</th><th>Solicitante</th><th>Prioridad</th><th>Problema</th><th>Estado</th></tr></thead><tbody>";
+    for (let i = 0; i < ticketsHistorial.length; i++) {
+        const t = ticketsHistorial[i];
+        const prioClase   = t.prioridad === "Alta" ? "badge-danger" : t.prioridad === "Media" ? "badge-warning" : "badge-info";
+        const estadoClase = t.estado === "Abierto" ? "badge-warning" : "badge-success";
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + t.fecha + "</td>";
+        html += "<td>" + t.solicitante + "</td>";
+        html += "<td><span class='badge " + prioClase   + "'>" + t.prioridad + "</span></td>";
+        html += "<td>" + t.problema + "</td>";
+        html += "<td><span class='badge " + estadoClase + "'>" + t.estado    + "</span></td>";
+        html += "</tr>";
     }
-
-    tabla.style.display = "table";
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
 }
 
 function mostrarReportes() {
-    const tabla = document.getElementById("tablaReportes");
-    const cuerpo = document.getElementById("cuerpoTablaReportes");
-    cuerpo.innerHTML = "";
-
-    const encabezado = tabla.querySelector("thead tr");
-    encabezado.innerHTML = "<th>#</th><th>Fecha</th><th>Equipos</th><th>Tickets</th>";
-
-    for (const i = 0; i < reportes.length; i++) {
-        const fila = document.createElement("tr");
-
-        const tdNum = document.createElement("td");
-        tdNum.textContent = i + 1;
-
-        const tdFecha = document.createElement("td");
-        tdFecha.textContent = reportes[i].fecha;
-
-        const tdEquipos = document.createElement("td");
-        tdEquipos.textContent = reportes[i].equipos;
-
-        const tdTickets = document.createElement("td");
-        tdTickets.textContent = reportes[i].tickets;
-
-        fila.appendChild(tdNum);
-        fila.appendChild(tdFecha);
-        fila.appendChild(tdEquipos);
-        fila.appendChild(tdTickets);
-        cuerpo.appendChild(fila);
+    let html = "<table><thead><tr><th>#</th><th>Fecha</th><th>Equipos</th><th>Tickets abiertos</th><th>Tickets cerrados</th><th>Préstamos</th></tr></thead><tbody>";
+    for (let i = 0; i < reportesHistorial.length; i++) {
+        const r = reportesHistorial[i];
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + r.fecha + "</td>";
+        html += "<td>" + r.equipos + "</td>";
+        html += "<td>" + r.ticketsAbiertos + "</td>";
+        html += "<td>" + r.ticketsCerrados + "</td>";
+        html += "<td>" + r.prestamos + "</td>";
+        html += "</tr>";
     }
-
-    tabla.style.display = "table";
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
 }
+
+// Mostrar tickets por defecto al cargar
+mostrarTickets();

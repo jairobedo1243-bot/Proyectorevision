@@ -1,76 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGRSI</title>
+    <title>SGRSI – Historial</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
-
 <body>
 
-    <header>
-        <h1>SGRSI</h1>
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
 
-        <p>
-            Sistema de Gestión de Recursos y Soporte Informático
-        </p>
-    </header>
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="indexRecursos.html">Inventario</a>
+    <a href="indexUsuarios.html">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html">Tickets</a>
+    <a href="indexReportes.html">Reportes</a>
+    <a href="indexHistorial.html" class="activo">Historial</a>
+</nav>
 
-    <nav>
+<main>
+    <section id="Historial">
+        <h2>Historial</h2>
 
-        <a href="index.html">Inicio</a>
-        <a href="indexRecursos.html">Inventario</a>
-        <a href="indexUsuarios.html">Alta de Usuarios</a>
-        <a href="indexPrestamos.html">Préstamos</a>
-        <a href="indexTickets.html">Tickets</a>
-        <a href="indexReportes.html">Reportes</a>
-        <a href="indexHistorial.html">Historial</a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+            <button type="button" id="botonMostrarTickets">Ver Tickets</button>
+            <button type="button" id="botonMostrarReportes">Ver Reportes</button>
+        </div>
 
-    </nav>
-    <main>
-        <section id="Historial">
+        <div class="tabla-wrapper" id="contenedorHistorial"></div>
+    </section>
+</main>
 
-            <h2>Historial</h2>
-            <button id="botonMostrarTickets">Mostrar Tickets</button>
-            <button id="botonMostrarReportes">Mostrar Reportes</button>
-            <table id="tablaTickets">
-                <thead>
-                    <tr>
-                        <th>Tickets</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTablaTickets">
-                </tbody>
-            </table>
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
 
-            <table class="d-none" id="tablaReportes">
-                <thead>
-                    <tr>
-                        <th>Reportes</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTablaReportes">
-                </tbody>
-                </table>
-                <p id="mensajeEquipo"></p>
-               
-
-        </section>
-
-    </main>
-
-    <footer>
-
-        <p>SGRSI - Proyecto Bachillerato</p>
-
-    </footer>
-
-    <script src="historial.js"></script> 
-     <script src="js/bootstrap.bundle.min.js"></script>
-
+<script src="historial.js"></script>
 </body>
-
 </html>

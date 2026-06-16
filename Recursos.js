@@ -1,65 +1,71 @@
-
+// =============================================
+// MÓDULO: Inventario de Equipos
+// =============================================
 
 const equipos = [];
 
 const botonAgregarEquipo = document.getElementById("botonAgregarEquipo");
+const mensajeEquipo      = document.getElementById("mensajeEquipo");
 
-botonAgregarEquipo.addEventListener("click", function(event) {
-    event.preventDefault();
+botonAgregarEquipo.addEventListener("click", function () {
+    const nombre  = document.getElementById("nombreEquipo").value.trim();
+    const marca   = document.getElementById("marcaEquipo").value.trim();
+    const nroSerie = document.getElementById("nroSerieEquipo").value.trim();
+    const tipo    = document.getElementById("tipoEquipo").value;
 
-    const nombreEquipo = document.getElementById("nombreEquipo").value;
-    const tipoEquipo = document.getElementById("tipoEquipo").value;
-    const mensaje = document.getElementById("mensajeEquipo");
+    mostrarMensaje(mensajeEquipo, "", "");
 
-    if (nombreEquipo == "") {
-        mensaje.textContent = "Ingresá el nombre del equipo.";
+    if (nombre === "") {
+        mostrarMensaje(mensajeEquipo, "Ingresá el nombre del equipo.", "error");
+        return;
+    }
+    if (nombre.length > 40) {
+        mostrarMensaje(mensajeEquipo, "El nombre no puede tener más de 40 caracteres.", "error");
+        return;
+    }
+    if (tipo === "") {
+        mostrarMensaje(mensajeEquipo, "Seleccioná el tipo de equipo.", "error");
         return;
     }
 
-    if (nombreEquipo.length > 20) {
-        mensaje.textContent = "El nombre no puede tener más de 20 caracteres.";
-        return;
-    }
+    equipos.push({ nombre: nombre, marca: marca, nroSerie: nroSerie, tipo: tipo, disponible: true });
+    mostrarMensaje(mensajeEquipo, "Equipo agregado: " + nombre, "exito");
 
-    if (tipoEquipo == "") {
-        mensaje.textContent = "Seleccioná el tipo de equipo.";
-        return;
-    }
+    document.getElementById("nombreEquipo").value    = "";
+    document.getElementById("marcaEquipo").value     = "";
+    document.getElementById("nroSerieEquipo").value  = "";
+    document.getElementById("tipoEquipo").value      = "";
 
-    const equipo = {
-        nombre: nombreEquipo,
-        tipo: tipoEquipo,
-        disponible: true
-    };
-
-    equipos.push(equipo);
-
-    mensaje.textContent = "Equipo agregado: " + nombreEquipo;
-
-    document.getElementById("nombreEquipo").value = "";
-    document.getElementById("tipoEquipo").value = "";
-
-    mostrarTablaEquipos();
+    renderTablaEquipos();
 });
 
-function mostrarTablaEquipos() {
-    const tablaVieja = document.getElementById("tablaEquipos");
-    if (tablaVieja) {
-        tablaVieja.remove();
+function renderTablaEquipos() {
+    const contenedor = document.getElementById("contenedorTablaEquipos");
+
+    if (equipos.length === 0) {
+        contenedor.innerHTML = "<p class='empty-state'>No hay equipos registrados aún.</p>";
+        return;
     }
 
-    const tabla = document.createElement("table");
-    tabla.id = "tablaEquipos";
-
-    const fila = tabla.insertRow();
-    fila.innerHTML = "<th>Nombre</th><th>Tipo</th><th>Estado</th>";
-
-    for (const i = 0; i < equipos.length; i++) {
-        const fila = tabla.insertRow();
-        fila.insertCell().textContent = equipos[i].nombre;
-        fila.insertCell().textContent = equipos[i].tipo;
-        fila.insertCell().textContent = equipos[i].disponible ? "Disponible" : "Prestado";
+    let html = "<table><thead><tr><th>#</th><th>Nombre</th><th>Marca/Modelo</th><th>N° Serie</th><th>Tipo</th><th>Estado</th></tr></thead><tbody>";
+    for (let i = 0; i < equipos.length; i++) {
+        const e = equipos[i];
+        const badgeClase = e.disponible ? "badge-success" : "badge-danger";
+        const badgeTexto = e.disponible ? "Disponible" : "Prestado";
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + e.nombre + "</td>";
+        html += "<td>" + (e.marca || "—") + "</td>";
+        html += "<td>" + (e.nroSerie || "—") + "</td>";
+        html += "<td>" + e.tipo + "</td>";
+        html += "<td><span class='badge " + badgeClase + "'>" + badgeTexto + "</span></td>";
+        html += "</tr>";
     }
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
+}
 
-    document.getElementById("registroEquipo").appendChild(tabla);
+function mostrarMensaje(el, texto, tipo) {
+    el.textContent = texto;
+    el.className   = "mensaje " + tipo;
 }
