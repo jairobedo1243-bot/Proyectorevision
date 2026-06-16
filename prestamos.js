@@ -72,7 +72,7 @@ function renderTablaPrestamos() {
         const badgeClase = p.devuelto ? "badge-success" : "badge-warning";
         const badgeTexto = p.devuelto ? "Devuelto" : "En préstamo";
         const accion     = p.devuelto
-            ? "<span style='color:var(--text-muted)'>✓</span>"
+            ? "<span style='color:var(--text-muted)'></span>"
             : "<button class='btn-sm btn-success' onclick='devolverEquipo(" + i + ")'>Devolver</button>";
 
         html += "<tr>";
@@ -84,6 +84,7 @@ function renderTablaPrestamos() {
         html += "<td><span class='badge " + badgeClase + "'>" + badgeTexto + "</span></td>";
         html += "<td>" + accion + "</td>";
         html += "</tr>";
+        
     }
     html += "</tbody></table>";
     contenedor.innerHTML = html;
