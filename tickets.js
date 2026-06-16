@@ -1,66 +1,90 @@
+// =============================================
+// MÓDULO: Tickets
+// =============================================
 
 const tickets = [];
+const mensajeTicket = document.getElementById("mensajeTicket");
 
-const formTicket = document.getElementById("formTicket");
-
-formTicket.addEventListener("submit", function(event) {
+document.getElementById("formTicket").addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const problema = document.getElementById("problemaTicket").value;
-    const mensaje = document.getElementById("mensajeTicket");
+    const solicitante = document.getElementById("solicitanteTicket").value.trim();
+    const prioridad   = document.getElementById("prioridadTicket").value;
+    const problema    = document.getElementById("problemaTicket").value.trim();
 
-    if (problema == "") {
-        mensaje.textContent = "Describí el problema.";
+    mostrarMensaje(mensajeTicket, "", "");
+
+    if (solicitante === "") {
+        mostrarMensaje(mensajeTicket, "Ingresá el nombre del solicitante.", "error");
+        return;
+    }
+    if (prioridad === "") {
+        mostrarMensaje(mensajeTicket, "Seleccioná la prioridad.", "error");
+        return;
+    }
+    if (problema === "") {
+        mostrarMensaje(mensajeTicket, "Describí el problema.", "error");
         return;
     }
 
-    const ticket = {
+    const fecha = new Date().toLocaleDateString("es-UY");
+
+    tickets.push({
+        solicitante: solicitante,
+        prioridad: prioridad,
         problema: problema,
-        estado: "Abierto"
-    };
+        estado: "Abierto",
+        fecha: fecha
+    });
 
-    tickets.push(ticket);
+    mostrarMensaje(mensajeTicket, "Ticket #" + tickets.length + " creado correctamente.", "exito");
 
-    mensaje.textContent = "Ticket creado correctamente.";
+    document.getElementById("solicitanteTicket").value = "";
+    document.getElementById("prioridadTicket").value   = "";
+    document.getElementById("problemaTicket").value    = "";
 
-    document.getElementById("problemaTicket").value = "";
-
-    mostrarTablaTickets();
+    renderTablaTickets();
 });
 
-function mostrarTablaTickets() {
-    const tablaVieja = document.getElementById("tablaTickets");
-    if (tablaVieja) {
-        tablaVieja.remove();
+function renderTablaTickets() {
+    const contenedor = document.getElementById("contenedorTablaTickets");
+
+    if (tickets.length === 0) {
+        contenedor.innerHTML = "<p class='empty-state'>No hay tickets registrados aún.</p>";
+        return;
     }
 
-    const tabla = document.createElement("table");
-    tabla.id = "tablaTickets";
+    let html = "<table><thead><tr><th>#</th><th>Fecha</th><th>Solicitante</th><th>Prioridad</th><th>Problema</th><th>Estado</th><th>Acción</th></tr></thead><tbody>";
 
-    const encabezado = tabla.insertRow();
-    encabezado.innerHTML = "<th>#</th><th>Problema</th><th>Estado</th><th>Cerrar</th>";
+    for (let i = 0; i < tickets.length; i++) {
+        const t = tickets[i];
+        const prioClase = t.prioridad === "Alta" ? "badge-danger" : t.prioridad === "Media" ? "badge-warning" : "badge-info";
+        const estadoClase = t.estado === "Abierto" ? "badge-warning" : "badge-success";
+        const accion = t.estado === "Abierto"
+            ? "<button class='btn-sm btn-success' onclick='cerrarTicket(" + i + ")'>Cerrar</button>"
+            : "<span style='color:var(--text-muted)'>✓ Cerrado</span>";
 
-    for (const i = 0; i < tickets.length; i++) {
-        const fila = tabla.insertRow();
-        fila.insertCell().textContent = i + 1;
-        fila.insertCell().textContent = tickets[i].problema;
-        fila.insertCell().textContent = tickets[i].estado;
-
-        const celdaBtn = fila.insertCell();
-        if (tickets[i].estado == "Abierto") {
-            const btn = document.createElement("button");
-            btn.textContent = "Cerrar";
-            btn.setAttribute("data-indice", i);
-            btn.addEventListener("click", function() {
-                const idx = parseInt(this.getAttribute("data-indice"));
-                tickets[idx].estado = "Cerrado";
-                mostrarTablaTickets();
-            });
-            celdaBtn.appendChild(btn);
-        } else {
-            celdaBtn.textContent = "✓";
-        }
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + t.fecha + "</td>";
+        html += "<td>" + t.solicitante + "</td>";
+        html += "<td><span class='badge " + prioClase + "'>" + t.prioridad + "</span></td>";
+        html += "<td>" + t.problema + "</td>";
+        html += "<td><span class='badge " + estadoClase + "'>" + t.estado + "</span></td>";
+        html += "<td>" + accion + "</td>";
+        html += "</tr>";
     }
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
+}
 
-    document.getElementById("tickets").appendChild(tabla);
+function cerrarTicket(i) {
+    tickets[i].estado = "Cerrado";
+    renderTablaTickets();
+    mostrarMensaje(mensajeTicket, "Ticket #" + (i + 1) + " cerrado.", "info");
+}
+
+function mostrarMensaje(el, texto, tipo) {
+    el.textContent = texto;
+    el.className   = "mensaje " + tipo;
 }

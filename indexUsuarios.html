@@ -1,64 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Usuarios</title>
-
+    <title>SGRSI – Usuarios</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <header>
-        <h1>SGRSI</h1>
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
 
-        <p>
-            Sistema de Gestión de Recursos y Soporte Informático
-        </p>
-    </header>
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="indexRecursos.html">Inventario</a>
+    <a href="indexUsuarios.html" class="activo">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html">Tickets</a>
+    <a href="indexReportes.html">Reportes</a>
+    <a href="indexHistorial.html">Historial</a>
+</nav>
 
-    <nav>
+<main>
+    <section id="altaUsuarios">
+        <h2>Alta de Usuarios</h2>
 
-        <a href="index.html">Inicio</a>
-        <a href="indexRecursos.html">Inventario</a>
-        <a href="indexUsuarios.html">Alta de Usuarios</a>
-        <a href="indexPrestamos.html">Préstamos</a>
-        <a href="indexTickets.html">Tickets</a>
-        <a href="indexReportes.html">Reportes</a>
-        <a href="indexHistorial.html">Historial</a>
+        <form id="formUsuario">
+            <label for="nombreUsuario">Nombre completo</label>
+            <input type="text" id="nombreUsuario" placeholder="Ej: María González" required>
 
-    </nav>
-    <main>
-        <section id="altaUsuarios">
+            <label for="correoUsuario">Correo electrónico</label>
+            <input type="email" id="correoUsuario" placeholder="usuario@institucion.edu" required>
 
-                <h2>Alta de Usuarios</h2>
+            <label for="rolUsuario">Rol</label>
+            <select id="rolUsuario" required>
+                <option value="">Seleccionar rol…</option>
+                <option value="Docente">Docente</option>
+                <option value="Técnico">Técnico</option>
+                <option value="Administrador">Administrador</option>
+            </select>
 
-                <form id="formUsuario">
+            <button type="button" id="botonAgregarUsuario">Agregar Usuario</button>
+        </form>
 
-                    <label>Nombre del usuario</label>
+        <p id="mensajeUsuario" class="mensaje"></p>
 
-                    <input type="text" id="nombreUsuario" required>
+        <div class="tabla-wrapper" id="contenedorTablaUsuarios"></div>
+    </section>
+</main>
 
-                    <label>Correo electrónico</label>
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
 
-                    <input type="email" id="correoUsuario" required>
-
-                    <button id="botonAgregarUsuario">Agregar Usuario</button>
-
-                </form>
-
-               
-            </section>
-
-    </main>
-
-     <footer>
-
-        <p>SGRSI - Proyecto Bachillerato</p>
-
-    </footer>
-
-    <script src="usuarios.js"></script>
-    
+<script src="usuarios.js"></script>
 </body>
 </html>

@@ -1,64 +1,81 @@
-
+// =============================================
+// MÓDULO: Usuarios
+// =============================================
 
 const usuarios = [];
 
 const botonAgregarUsuario = document.getElementById("botonAgregarUsuario");
+const mensajeUsuario = document.getElementById("mensajeUsuario");
 
-botonAgregarUsuario.addEventListener("click", function(event) {
-    event.preventDefault();
+botonAgregarUsuario.addEventListener("click", function () {
+    const nombre = document.getElementById("nombreUsuario").value.trim();
+    const correo = document.getElementById("correoUsuario").value.trim();
+    const rol    = document.getElementById("rolUsuario").value;
 
-    const nombre = document.getElementById("nombreUsuario").value;
-    const correo = document.getElementById("correoUsuario").value;
+    mostrarMensaje(mensajeUsuario, "", "");
 
-    const mensaje = document.getElementById("mensajeUsuario");
-    if (!mensaje) {
-        mensaje = document.createElement("p");
-        mensaje.id = "mensajeUsuario";
-        document.getElementById("altaUsuarios").appendChild(mensaje);
+    if (nombre === "") {
+        mostrarMensaje(mensajeUsuario, "Ingresá el nombre del usuario.", "error");
+        return;
     }
-
-    if (nombre == "") {
-        mensaje.textContent = "Ingresá el nombre del usuario.";
+    if (correo === "") {
+        mostrarMensaje(mensajeUsuario, "Ingresá el correo electrónico.", "error");
+        return;
+    }
+    if (rol === "") {
+        mostrarMensaje(mensajeUsuario, "Seleccioná un rol.", "error");
         return;
     }
 
-    if (correo == "") {
-        mensaje.textContent = "Ingresá el correo del usuario.";
+    const duplicado = usuarios.some(function (u) { return u.correo === correo; });
+    if (duplicado) {
+        mostrarMensaje(mensajeUsuario, "Ya existe un usuario con ese correo.", "error");
         return;
     }
 
-    const usuario = {
-        nombre: nombre,
-        correo: correo
-    };
-
-    usuarios.push(usuario);
-
-    mensaje.textContent = "Usuario agregado: " + nombre;
+    usuarios.push({ nombre: nombre, correo: correo, rol: rol });
+    mostrarMensaje(mensajeUsuario, "Usuario agregado: " + nombre + " (" + rol + ")", "exito");
 
     document.getElementById("nombreUsuario").value = "";
     document.getElementById("correoUsuario").value = "";
+    document.getElementById("rolUsuario").value    = "";
 
-    mostrarTablaUsuarios();
+    renderTablaUsuarios();
 });
 
-function mostrarTablaUsuarios() {
-    const tablaVieja = document.getElementById("tablaUsuarios");
-    if (tablaVieja) {
-        tablaVieja.remove();
+function renderTablaUsuarios() {
+    const contenedor = document.getElementById("contenedorTablaUsuarios");
+
+    if (usuarios.length === 0) {
+        contenedor.innerHTML = "<p class='empty-state'>No hay usuarios registrados aún.</p>";
+        return;
     }
 
-    const tabla = document.createElement("table");
-    tabla.id = "tablaUsuarios";
-
-    const encabezado = tabla.insertRow();
-    encabezado.innerHTML = "<th>Nombre</th><th>Correo</th>";
-
-    for (const i = 0; i < usuarios.length; i++) {
-        const fila = tabla.insertRow();
-        fila.insertCell().textContent = usuarios[i].nombre;
-        fila.insertCell().textContent = usuarios[i].correo;
+    let html = "<table><thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acción</th></tr></thead><tbody>";
+    for (let i = 0; i < usuarios.length; i++) {
+        const u = usuarios[i];
+        html += "<tr>";
+        html += "<td>" + (i + 1) + "</td>";
+        html += "<td>" + u.nombre + "</td>";
+        html += "<td>" + u.correo + "</td>";
+        html += "<td><span class='badge badge-info'>" + u.rol + "</span></td>";
+        html += "<td><button class='btn-danger btn-sm' onclick='eliminarUsuario(" + i + ")'>Eliminar</button></td>";
+        html += "</tr>";
     }
+    html += "</tbody></table>";
+    contenedor.innerHTML = html;
+}
 
-    document.getElementById("altaUsuarios").appendChild(tabla);
+function eliminarUsuario(i) {
+    if (confirm("¿Eliminar el usuario \"" + usuarios[i].nombre + "\"?")) {
+        usuarios.splice(i, 1);
+        renderTablaUsuarios();
+        mostrarMensaje(mensajeUsuario, "Usuario eliminado.", "info");
+    }
+}
+
+// Helper compartido
+function mostrarMensaje(el, texto, tipo) {
+    el.textContent = texto;
+    el.className   = "mensaje " + tipo;
 }

@@ -1,58 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGRSI</title>
-
+    <title>SGRSI – Inicio</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-    <header>
-        <h1>SGRSI</h1>
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
 
-        <p>
-            Sistema de Gestión de Recursos y Soporte Informático
-        </p>
-    </header>
+<nav>
+    <a href="index.html" class="activo">Inicio</a>
+    <a href="indexRecursos.html">Inventario</a>
+    <a href="indexUsuarios.html">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html">Tickets</a>
+    <a href="indexReportes.html">Reportes</a>
+    <a href="indexHistorial.html">Historial</a>
+</nav>
 
-    <nav>
+<main>
+    <div class="bienvenida-hero">
+        <h2>Bienvenido a SGRSI</h2>
+        <p>Gestioná equipos, usuarios, préstamos y tickets de soporte desde un solo lugar.
+           Usá el menú de arriba o accedé directamente a cada módulo.</p>
+    </div>
 
-        <a href="index.html">Inicio</a>
-        <a href="indexRecursos.html">Inventario</a>
-        <a href="indexUsuarios.html">Alta de Usuarios</a>
-        <a href="indexPrestamos.html">Préstamos</a>
-        <a href="indexTickets.html">Tickets</a>
-        <a href="indexReportes.html">Reportes</a>
-        <a href="indexHistorial.html">Historial</a>
+    <div class="modulos-grid">
+        <a href="indexRecursos.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Inventario</h3>
+            <p>Registrá y consultá los equipos disponibles.</p>
+        </a>
+        <a href="indexUsuarios.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Usuarios</h3>
+            <p>Alta de docentes, técnicos y administradores.</p>
+        </a>
+        <a href="indexPrestamos.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Préstamos</h3>
+            <p>Registrá préstamos y devoluciones de equipos.</p>
+        </a>
+        <a href="indexTickets.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Tickets</h3>
+            <p>Mesa de ayuda: abrí y cerrá tickets de soporte.</p>
+        </a>
+        <a href="indexReportes.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Reportes</h3>
+            <p>Resumen del estado del sistema en tiempo real.</p>
+        </a>
+        <a href="indexHistorial.html" class="modulo-card">
+            <div class="icono"></div>
+            <h3>Historial</h3>
+            <p>Revisá el registro de tickets y reportes anteriores.</p>
+        </a>
+    </div>
+</main>
 
-    </nav>
-
-    <main>
-    
-        <section id="bienvenida">
-
-            <h2>Bienvenido a SGRSI</h2>
-
-            <p>
-                Este sistema está diseñado para facilitar la gestión de recursos y soporte informático en tu institución. 
-                Aquí podrás llevar un control eficiente de los equipos, usuarios, préstamos y tickets de soporte.
-            </p>
-
-        </section>
-        
-    </main>
-
-    <footer>
-
-        <p>©SGRSI</p>
-
-    </footer>
-
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
 
 </body>
-
 </html>
