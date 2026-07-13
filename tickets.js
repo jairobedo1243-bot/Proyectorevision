@@ -1,6 +1,3 @@
-// =============================================
-// MÓDULO: Tickets
-// =============================================
 
 const tickets = [];
 const mensajeTicket = document.getElementById("mensajeTicket");
