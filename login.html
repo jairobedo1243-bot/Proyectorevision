@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGRSI – Iniciar Sesion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-body">
+
+<main class="login-main">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>SGRSI</h1>
+            <p>Sistema de Gestion de Recursos y Soporte Informatico</p>
+        </div>
+
+        <form id="loginForm">
+            <label for="correoLogin">Correo electronico</label>
+            <input type="email" id="correoLogin" placeholder="usuario@institucion.edu" required autocomplete="email">
+
+            <label for="passwordLogin">Contrasena</label>
+            <input type="password" id="passwordLogin" placeholder="Ingresa tu contrasena" required autocomplete="current-password">
+
+            <button type="submit" id="botonLogin">Ingresar</button>
+        </form>
+
+        <p id="mensajeLogin" class="mensaje"></p>
+
+        <p style="margin-top:16px;font-size:0.78rem;color:var(--text-muted);text-align:center;">
+            Usuarios por defecto:<br>
+            admin@sgrsi.edu / admin123 (Admin)<br>
+            coord@sgrsi.edu / coord123 (Coordinador)
+        </p>
+    </div>
+</main>
+
+<script src="auth.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+       var correo = document.getElementById('correoLogin').value.trim();
+        var password = document.getElementById('passwordLogin').value.trim();
+        var mensaje = document.getElementById('mensajeLogin');
+
+        var result = Auth.login(correo, password);
+        if (result.success) {
+            window.location.href = 'index.html';
+        } else {
+            mensaje.textContent = result.mensaje;
+            mensaje.className = 'mensaje error';
+        }
+    });
+</script>
+</body>
+</html>
