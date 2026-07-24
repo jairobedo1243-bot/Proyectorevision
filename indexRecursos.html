@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGRSI – Inventario</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1>SGRSI</h1>
+    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+</header>
+
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="indexRecursos.html" class="activo">Inventario</a>
+    <a href="indexUsuarios.html">Usuarios</a>
+    <a href="indexPrestamos.html">Préstamos</a>
+    <a href="indexTickets.html">Tickets</a>
+    <a href="indexReportes.html">Reportes</a>
+    <a href="indexHistorial.html">Historial</a>
+</nav>
+
+<main>
+    <section id="registroEquipo">
+        <h2>Registro de Equipos</h2>
+
+        <form id="formEquipo">
+            <label for="nombreEquipo">Nombre del equipo</label>
+            <input type="text" id="nombreEquipo" placeholder="Ej: PC-Laboratorio-01" required>
+
+            <label for="marcaEquipo">Marca / Modelo</label>
+            <input type="text" id="marcaEquipo" placeholder="Ej: Dell OptiPlex 3080">
+
+            <label for="nroSerieEquipo">Número de serie</label>
+            <input type="text" id="nroSerieEquipo" placeholder="Ej: SN-2024-0001">
+
+            <label for="tipoEquipo">Tipo de equipo</label>
+            <select id="tipoEquipo" required>
+                <option value="">Seleccionar…</option>
+                <option value="PC">PC</option>
+                <option value="Proyector">Proyector</option>
+                <option value="Television">Television</option>
+            </select>
+
+            <button type="button" id="botonAgregarEquipo">Agregar Equipo</button>
+        </form>
+
+        <p id="mensajeEquipo" class="mensaje"></p>
+
+        <div class="tabla-wrapper" id="contenedorTablaEquipos"></div>
+    </section>
+</main>
+
+<footer>
+    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+</footer>
+
+<script src="Recursos.js"></script>
+</body>
+</html>
