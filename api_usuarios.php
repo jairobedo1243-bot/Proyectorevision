@@ -61,3 +61,4 @@ switch ($method) {
 }
 
 $conn->close();
+?>
