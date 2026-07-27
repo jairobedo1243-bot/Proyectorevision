@@ -109,7 +109,7 @@
             <input type="email" id="email" placeholder="ejemplo@utu.edu.uy" required>
 
             <label for="contrasena">Contraseña</label>
-            <input type="password" id="contrasena" placeholder="••••••••" required>
+            <input type="password"  id="contrasena"  name="password" required pattern="(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}" title="Debe tener al menos 8 caracteres, una mayúscula y un carácter especial." required> 
 
             <button type="submit">Ingresar</button>
         </form>

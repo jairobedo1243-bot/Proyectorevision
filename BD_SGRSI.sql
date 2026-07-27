@@ -61,16 +61,16 @@ create table historial(
 USE BD_SGRSI;
 
 INSERT INTO usuario (ci_usuario, nom, ape, email, contrasena, rol) VALUES
-(1, 'Juan', 'Perez', 'juan.perez@utu.edu.uy', '$2a$10$K3C.D.UGUCtTvpbs8DkXneLe1uxt3bnQRxGy4ZsNlfZ6YYKIzbURO', 'Administrador'),      -- pass123
-(2, 'Maria', 'Garcia', 'maria.garcia@utu.edu.uy', '$2a$10$9o7Sh/PPO5FopTLYEgCdJenK6ZoC0KFH8NyvmzdzAPJUX5Lpg/McS', 'Docente'),            -- pass456
-(3, 'Carlos', 'Rodriguez', 'carlos.rodriguez@utu.edu.uy', '$2a$10$XVYeqtjck4YbEKYXEQJdieEt954sU9HWAaqPrKxr0eVthoa7.VVYS', 'Estudiante'),   -- pass789
-(4, 'Ana', 'Martinez', 'ana.martinez@utu.edu.uy', '$2a$10$0F9hSyw4i7PvrJzXryhxjOoIZgxzqXy9DyyZiTyOLk5LnBxWg6H1O', 'Soporte Tecnico'),   -- passabc
-(5, 'Lucia', 'Fernandez', 'lucia.fernandez@utu.edu.uy', '$2a$10$Es3N8DWTiLanigIMJlLHAuHveGbqMjxsf4NwAi1QFFWjyWmIqC2O.', 'Estudiante'),  -- passdef
-(6, 'Pedro', 'Silva', 'pedro.silva@utu.edu.uy', '$2a$10$8SP./t1rojo8GqioeHlHkOrQ/SSPpA2nVxQMbFrige5TEERs2Q.Ee', 'Docente'),            -- passghi
-(7, 'Sofia', 'Lopez', 'sofia.lopez@utu.edu.uy', '$2a$10$x4akk07LzliII/dJeEOVLOLnbZNW/4pAL9RKfrhaoXdpiNscIZSVi', 'Estudiante'),     -- passjkl
-(8, 'Diego', 'Torres', 'diego.torres@utu.edu.uy', '$2a$10$eK5BiTAucMpR2BYoC23.6ejU2ahRHfQ8zQu0FvcVitsLHBy59YjL6', 'Coordinador'),       -- passmno
-(9, 'Martin', 'Gonzalez', 'martin.gonzalez@utu.edu.uy', '$2a$10$DF3gt1jNnIvT6NSt51GH2OYvj7gZoa/CW5MKnPH7sZGo88qARFEqS', 'Estudiante'), -- passpqr
-(10, 'Valeria', 'Castro', 'valeria.castro@utu.edu.uy', '$2a$10$MjCd7KNsWHng88OGBbIDDeDdDYqY5sfwtf0rfqc7mUMzf1uS8/KtC', 'Soporte Tecnico'); -- passstu
+(1, 'Juan', 'Perez', 'juan.perez@utu.edu.uy', '$2b$10$pEeC/1uA7YVP3pi8pcEdiOqds8q8XN8K.P.A6Ol5NSvFygV78mpzK', 'Administrador'),      -- Perez123!
+(2, 'Maria', 'Garcia', 'maria.garcia@utu.edu.uy', '$2b$10$k2arqsHI2myjUddxcsab6OhETlRjSU3Jd7Z2wkM.OMNouxFSSLngy', 'Docente'),        -- Garcia456!
+(3, 'Carlos', 'Rodriguez', 'carlos.rodriguez@utu.edu.uy', '$2b$10$itFrDOigcgBMNOpZP0R1RuP4RqKkXY6lsC7i.Mfrd1vLNl6BZuHHm', 'Estudiante'), -- Rodri789!
+(4, 'Ana', 'Martinez', 'ana.martinez@utu.edu.uy', '$2b$10$CzPchQ3eGe0FPpJ3Lk4SRu1HFz0SrVyTBD1ue94WKYzfWIHTm1y/m', 'Soporte Tecnico'), -- Marti234!
+(5, 'Lucia', 'Fernandez', 'lucia.fernandez@utu.edu.uy', '$2b$10$BajVz2aV3cIdqJMublLvsefk5cydZlQjdR2uHNJJ1gu70PKaf/WGS', 'Estudiante'), -- Ferna567!
+(6, 'Pedro', 'Silva', 'pedro.silva@utu.edu.uy', '$2b$10$BnzhtzsG9bwKyHVVlNkyLO7CMLS18etudq3YZJdBeESRXigaAPvpm', 'Docente'),          -- Silva890!
+(7, 'Sofia', 'Lopez', 'sofia.lopez@utu.edu.uy', '$2b$10$38YiceGUGaev93vhYs552OF2G9VFw4dme2D3/gHlsAW47uAFT5kF2', 'Estudiante'),      -- Lopez123!
+(8, 'Diego', 'Torres', 'diego.torres@utu.edu.uy', '$2b$10$jr4Mwt77d7X292caaKwtSe8WDNJvb0XCuCuX0ZeN/0DJknWkWzLbi', 'Coordinador'),   -- Torre456!
+(9, 'Martin', 'Gonzalez', 'martin.gonzalez@utu.edu.uy', '$2b$10$ObWduzi65Mwh9tq2A796SOrvxlwNVW.9DDPncQry400TN4yroLG2a', 'Estudiante'), -- Gonza789!
+(10, 'Valeria', 'Castro', 'valeria.castro@utu.edu.uy', '$2b$10$OGSKrYvxxP9387bQpkr78.ePk320Ofgcah0Rra5Az5zZRjmbfHIhm', 'Soporte Tecnico'); -- Castr012!
 
 INSERT INTO equipo (id_equipo, estado, numeroSerie, modelo, marca, tipo) VALUES
 (1, 'Disponible', 'SN-001-ABC', 'ProDesk 400', 'HP', 'Desktop'),
