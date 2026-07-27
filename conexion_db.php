@@ -13,3 +13,4 @@ function conectar() {
     $conn->set_charset("utf8");
     return $conn;
 }
+?>
