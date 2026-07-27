@@ -113,3 +113,6 @@ INSERT INTO historial (id_historial, descripcion, accion, id_equipo, id_ticket, 
 (4, 'Se configuro red WiFi en dispositivo del estudiante', 'Configuracion', 2, 4, 3),
 (5, 'Se limpio y realizo mantenimiento preventivo a desktop', 'Mantenimiento', 4, 7, 5),
 (6, 'Se reemplazo teclado con teclas trabadas', 'Reemplazo', 7, 6, 2);
+
+-- el pepe 123
+-- el pepe 1234
