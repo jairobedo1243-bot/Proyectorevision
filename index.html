@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
+<html lang="en">
+   
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,24 +27,6 @@
     <a href="#" id="btnCerrarSesion" style="margin-left:auto;color:#fca5a5;">Cerrar sesión</a>
 </nav>
 
-<script>
-fetch("api_login.php")
-    .then(r => r.json())
-    .then(data => {
-        if (!data.autenticado) {
-            window.location.href = "login.html";
-            return;
-        }
-        const u = data.usuario;
-        document.getElementById("userInfo").textContent = u.nom + " " + u.ape + " — " + u.rol;
-    });
-
-document.getElementById("btnCerrarSesion").addEventListener("click", function(e) {
-    e.preventDefault();
-    fetch("api_login.php?accion=cerrar")
-        .then(() => { window.location.href = "login.html"; });
-});
-</script>
 
 <main>
     <div class="bienvenida-hero">
@@ -88,6 +72,8 @@ document.getElementById("btnCerrarSesion").addEventListener("click", function(e)
 <footer>
     <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
 </footer>
+
+<script src="checklogin.js"> </script>
 
 </body>
 </html>
