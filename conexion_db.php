@@ -1,7 +1,7 @@
 <?php
 $server = "localhost";
 $user = "root";
-$pass = "";
+$pass = "1234";
 $bd = "BD_SGRSI";
 
 function conectar() {

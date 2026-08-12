@@ -1,94 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGRSI – Iniciar Sesión</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .login-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-        .login-card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 40px 36px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .login-card h2 {
-            text-align: center;
-            margin-bottom: 8px;
-            font-family: var(--font-heading);
-            color: var(--primary);
-        }
-        .login-card p.sub {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 28px;
-            font-size: 0.9rem;
-        }
-        .login-card label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            margin-bottom: 18px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .login-card input:focus {
-            border-color: var(--accent);
-        }
-        .login-card button {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .login-card button:hover {
-            background: var(--accent-hover);
-        }
-        .login-error {
-            background: #fef2f2;
-            color: var(--danger);
-            padding: 10px 14px;
-            border-radius: var(--radius);
-            margin-bottom: 18px;
-            font-size: 0.9rem;
-            display: none;
-        }
-        .login-card .info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .login-card .info code {
-            background: #f3f4f6;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-    </style>
+    <link rel="stylesheet" href="login.css">
+    
 </head>
 <body>
 
@@ -110,7 +28,7 @@
 
             <label for="contrasena">Contraseña</label>
             <input type="password"  id="contrasena"  name="password" required pattern="(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}" title="Debe tener al menos 8 caracteres, una mayúscula y un carácter especial." required> 
-
+            
             <button type="submit">Ingresar</button>
         </form>
 
@@ -119,43 +37,18 @@
             Admin: <code>juan.perez@utu.edu.uy</code> / <code>Perez123!</code><br>
             Soporte: <code>ana.martinez@utu.edu.uy</code> / <code>Marti234!</code><br>
             Docente: <code>maria.garcia@utu.edu.uy</code> / <code>Garcia456!</code>
+            Password Estudiante prueba: Default123!
         </div>
     </div>
 </div>
 
 <footer>
     <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+
+
+
 </footer>
 
-<script>
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    const errorDiv = document.getElementById("loginError");
-    errorDiv.style.display = "none";
-
-    const email = document.getElementById("email").value;
-    const contrasena = document.getElementById("contrasena").value;
-
-    try {
-        const res = await fetch("http://localhost/Proyectorevision-main/api_login.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, contrasena })
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-            errorDiv.textContent = data.error || "Error al iniciar sesión";
-            errorDiv.style.display = "block";
-            return;
-        }
-
-        window.location.href = "index.html";
-    } catch (err) {
-        errorDiv.textContent = "Error de conexión con el servidor";
-        errorDiv.style.display = "block";
-    }
-});
-</script>
+<script src="login.js"></script>
 </body>
 </html>

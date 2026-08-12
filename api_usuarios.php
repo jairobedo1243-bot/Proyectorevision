@@ -26,7 +26,7 @@ switch ($method) {
         $correo = $data["correo"] ?? "";
         $rol = $data["rol"] ?? "";
         
-        $pass = password_hash("default123", PASSWORD_DEFAULT);
+        $pass = password_hash("Default123!", PASSWORD_DEFAULT);
 
         if (!$nombre || !$correo || !$rol) {
             http_response_code(400);
