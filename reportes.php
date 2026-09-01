@@ -1,144 +1,114 @@
 <?php
-session_start();
-require "db.php";
 
-$PERMISOS = [
-    "administrador" => [
-        "etiqueta" => "Administrador",
-        "clase"    => "badge-danger",
-        "paginas"  => ["index.php", "recursos.php", "usuarios.php", "prestamos.php", "tickets.php", "reportes.php", "historial.php", "perfil.php"],
-        "inventarioEditar" => true, "usuariosAdministrar" => true, "ticketsCerrar" => true
-    ],
-    "tecnico" => [
-        "etiqueta" => "Técnico",
-        "clase"    => "badge-warning",
-        "paginas"  => ["index.php", "recursos.php", "prestamos.php", "tickets.php", "reportes.php", "historial.php", "perfil.php"],
-        "inventarioEditar" => false, "usuariosAdministrar" => false, "ticketsCerrar" => true
-    ],
-    "solicitante" => [
-        "etiqueta" => "Solicitante",
-        "clase"    => "badge-info",
-        "paginas"  => ["index.php", "prestamos.php", "tickets.php", "perfil.php"],
-        "inventarioEditar" => false, "usuariosAdministrar" => false, "ticketsCerrar" => false
-    ]
-];
+declare(strict_types=1);
 
-function normalizarRol($rol) {
-    $r = mb_strtolower(trim($rol));
-    if (strpos($r, "admin") !== false) return "administrador";
-    if (strpos($r, "tecnico") !== false || strpos($r, "técnico") !== false) return "tecnico";
-    return "solicitante";
-}
+require_once __DIR__ . '/app/bootstrap.php';
 
-if (!isset($_SESSION["usuario"])) {
-    header("Location: login.php");
-    exit;
-}
-$usuario = $_SESSION["usuario"];
-$permiso = $PERMISOS[normalizarRol($usuario["rol"])];
-if (!in_array("reportes.php", $permiso["paginas"])) {
-    header("Location: index.php");
-    exit;
-}
+$auth = new SessionAuth();
+$usuario = $auth->requireLogin();
+$permiso = $auth->requirePageAccess('reportes.php', $usuario);
+$idioma = Translator::currentLanguage();
 
-$equiposTotal      = $conn->execute_query("SELECT COUNT(*) AS n FROM equipo")->fetch_assoc()["n"];
-$equiposDisponibles = $conn->execute_query("SELECT COUNT(*) AS n FROM equipo WHERE estado = 'Disponible'")->fetch_assoc()["n"];
-$equiposPrestados  = $conn->execute_query("SELECT COUNT(*) AS n FROM equipo WHERE estado = 'Prestado'")->fetch_assoc()["n"];
-
-$ticketsAbiertos = $conn->execute_query("SELECT COUNT(*) AS n FROM ticket WHERE estado != 'Cerrado'")->fetch_assoc()["n"];
-$ticketsCerrados = $conn->execute_query("SELECT COUNT(*) AS n FROM ticket WHERE estado = 'Cerrado'")->fetch_assoc()["n"];
-
-$prestamosTotal     = $conn->execute_query("SELECT COUNT(*) AS n FROM prestamo")->fetch_assoc()["n"];
-$prestamosActivos   = $conn->execute_query("SELECT COUNT(*) AS n FROM prestamo WHERE estado = 'Entregado'")->fetch_assoc()["n"];
-$prestamosDevueltos = $conn->execute_query("SELECT COUNT(*) AS n FROM prestamo WHERE estado = 'Devuelto'")->fetch_assoc()["n"];
-
-$fecha = date("d/m/Y");
+$equiposTotal = (int)Database::scalar('SELECT COUNT(*) AS n FROM equipo');
+$equiposDisponibles = (int)Database::scalar("SELECT COUNT(*) AS n FROM equipo WHERE estado = 'Disponible'");
+$equiposPrestados = (int)Database::scalar("SELECT COUNT(*) AS n FROM equipo WHERE estado = 'Prestado'");
+$ticketsAbiertos = (int)Database::scalar("SELECT COUNT(*) AS n FROM ticket WHERE estado != 'Cerrado'");
+$ticketsCerrados = (int)Database::scalar("SELECT COUNT(*) AS n FROM ticket WHERE estado = 'Cerrado'");
+$prestamosTotal = (int)Database::scalar('SELECT COUNT(*) AS n FROM prestamo');
+$prestamosActivos = (int)Database::scalar("SELECT COUNT(*) AS n FROM prestamo WHERE estado = 'Entregado'");
+$prestamosDevueltos = (int)Database::scalar("SELECT COUNT(*) AS n FROM prestamo WHERE estado = 'Devuelto'");
+$fecha = date('d/m/Y');
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="<?= $idioma ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGRSI – Reportes</title>
+    <title><?= t('tituloReportes') ?></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header>
     <h1>SGRSI</h1>
-    <p>Sistema de Gestión de Recursos y Soporte Informático</p>
+    <p><?= t('appSubtitulo') ?></p>
     <div style="margin-top:8px;font-size:0.85rem;opacity:0.9;">
-        <a href="perfil.php" style="color:inherit;text-decoration:none;"><?= $usuario["nom"] ?> <?= $usuario["ape"] ?></a>
-        <span class="badge <?= $permiso["clase"] ?>" style="vertical-align:middle;margin-left:4px;"><?= $permiso["etiqueta"] ?></span>
+        <?= $usuario['nom'] ?> <?= $usuario['ape'] ?>
+        <span class="badge <?= $permiso['clase'] ?>" style="vertical-align:middle;margin-left:4px;"><?= $permiso['etiqueta'] ?></span>
+    </div>
+    <div style="margin-top:6px;font-size:0.8rem;">
+        <a href="?idioma=es" style="color:<?= $idioma === 'es' ? '#fff' : '#94a3b8' ?>;text-decoration:none;font-weight:<?= $idioma === 'es' ? '700' : '400' ?>;">ES</a>
+        <span style="opacity:0.5;">|</span>
+        <a href="?idioma=en" style="color:<?= $idioma === 'en' ? '#fff' : '#94a3b8' ?>;text-decoration:none;font-weight:<?= $idioma === 'en' ? '700' : '400' ?>;">EN</a>
     </div>
 </header>
 
 <nav>
-    <a href="index.php">Inicio</a>
-    <?php if (in_array("recursos.php", $permiso["paginas"])): ?><a href="recursos.php">Inventario</a><?php endif; ?>
-    <?php if (in_array("usuarios.php", $permiso["paginas"])): ?><a href="usuarios.php">Usuarios</a><?php endif; ?>
-    <?php if (in_array("prestamos.php", $permiso["paginas"])): ?><a href="prestamos.php">Préstamos</a><?php endif; ?>
-    <?php if (in_array("tickets.php", $permiso["paginas"])): ?><a href="tickets.php">Tickets</a><?php endif; ?>
-    <a href="reportes.php" class="activo">Reportes</a>
-    <?php if (in_array("historial.php", $permiso["paginas"])): ?><a href="historial.php">Historial</a><?php endif; ?>
-    <a href="perfil.php">Mi perfil</a>
-    <a href="logout.php" style="margin-left:auto;color:#fca5a5;">Cerrar sesión</a>
+    <a href="index.php"><?= t('navInicio') ?></a>
+    <?php if (in_array('recursos.php', $permiso['paginas'], true)): ?><a href="recursos.php"><?= t('navInventario') ?></a><?php endif; ?>
+    <?php if (in_array('usuarios.php', $permiso['paginas'], true)): ?><a href="usuarios.php"><?= t('navUsuarios') ?></a><?php endif; ?>
+    <?php if (in_array('prestamos.php', $permiso['paginas'], true)): ?><a href="prestamos.php"><?= t('navPrestamos') ?></a><?php endif; ?>
+    <?php if (in_array('tickets.php', $permiso['paginas'], true)): ?><a href="tickets.php"><?= t('navTickets') ?></a><?php endif; ?>
+    <a href="reportes.php" class="activo"><?= t('navReportes') ?></a>
+    <?php if (in_array('historial.php', $permiso['paginas'], true)): ?><a href="historial.php"><?= t('navHistorial') ?></a><?php endif; ?>
+
+    <a href="logout.php" style="margin-left:auto;color:#fca5a5;"><?= t('navCerrarSesion') ?></a>
 </nav>
 
 <main>
     <section id="reportes">
-        <h2>Reportes del Sistema</h2>
+        <h2><?= t('reportesTitulo') ?></h2>
         <p style="color: var(--text-muted); margin-bottom: 16px; font-size:0.92rem;">
-            Resumen del estado actual del inventario, préstamos y tickets.
+            <?= t('reportesDesc') ?>
         </p>
 
         <div class="stats-grid">
             <div class="stat-card" style="border-top-color:#1e3a5f">
                 <div class="numero" style="color:#1e3a5f"><?= $equiposTotal ?></div>
-                <div class="etiqueta">Equipos totales</div>
+                <div class="etiqueta"><?= t('statEquiposTotales') ?></div>
             </div>
             <div class="stat-card" style="border-top-color:#16a34a">
                 <div class="numero" style="color:#16a34a"><?= $equiposDisponibles ?></div>
-                <div class="etiqueta">Disponibles</div>
+                <div class="etiqueta"><?= t('statDisponibles') ?></div>
             </div>
             <div class="stat-card" style="border-top-color:#d97706">
                 <div class="numero" style="color:#d97706"><?= $equiposPrestados ?></div>
-                <div class="etiqueta">Prestados</div>
+                <div class="etiqueta"><?= t('statPrestados') ?></div>
             </div>
             <div class="stat-card" style="border-top-color:#dc2626">
                 <div class="numero" style="color:#dc2626"><?= $ticketsAbiertos ?></div>
-                <div class="etiqueta">Tickets abiertos</div>
+                <div class="etiqueta"><?= t('statTicketsAbiertos') ?></div>
             </div>
             <div class="stat-card" style="border-top-color:#16a34a">
                 <div class="numero" style="color:#16a34a"><?= $ticketsCerrados ?></div>
-                <div class="etiqueta">Tickets cerrados</div>
+                <div class="etiqueta"><?= t('statTicketsCerrados') ?></div>
             </div>
             <div class="stat-card" style="border-top-color:#d97706">
                 <div class="numero" style="color:#d97706"><?= $prestamosActivos ?></div>
-                <div class="etiqueta">Préstamos activos</div>
+                <div class="etiqueta"><?= t('statPrestamosActivos') ?></div>
             </div>
         </div>
 
         <div class="tabla-wrapper">
             <table>
-                <thead><tr><th>Concepto</th><th>Valor</th></tr></thead>
+                <thead><tr><th><?= t('thConcepto') ?></th><th><?= t('thValor') ?></th></tr></thead>
                 <tbody>
-                    <tr><td>Total de equipos</td><td><strong><?= $equiposTotal ?></strong></td></tr>
-                    <tr><td>Equipos disponibles</td><td><strong><?= $equiposDisponibles ?></strong></td></tr>
-                    <tr><td>Equipos prestados</td><td><strong><?= $equiposPrestados ?></strong></td></tr>
-                    <tr><td>Tickets abiertos</td><td><strong><?= $ticketsAbiertos ?></strong></td></tr>
-                    <tr><td>Tickets cerrados</td><td><strong><?= $ticketsCerrados ?></strong></td></tr>
-                    <tr><td>Préstamos activos</td><td><strong><?= $prestamosActivos ?></strong></td></tr>
-                    <tr><td>Préstamos devueltos</td><td><strong><?= $prestamosDevueltos ?></strong></td></tr>
+                    <tr><td><?= t('filaTotalEquipos') ?></td><td><strong><?= $equiposTotal ?></strong></td></tr>
+                    <tr><td><?= t('filaEquiposDisponibles') ?></td><td><strong><?= $equiposDisponibles ?></strong></td></tr>
+                    <tr><td><?= t('filaEquiposPrestados') ?></td><td><strong><?= $equiposPrestados ?></strong></td></tr>
+                    <tr><td><?= t('filaTicketsAbiertos') ?></td><td><strong><?= $ticketsAbiertos ?></strong></td></tr>
+                    <tr><td><?= t('filaTicketsCerrados') ?></td><td><strong><?= $ticketsCerrados ?></strong></td></tr>
+                    <tr><td><?= t('filaPrestamosActivos') ?></td><td><strong><?= $prestamosActivos ?></strong></td></tr>
+                    <tr><td><?= t('filaPrestamosDevueltos') ?></td><td><strong><?= $prestamosDevueltos ?></strong></td></tr>
                 </tbody>
             </table>
         </div>
-        <p style="margin-top:12px;font-size:0.8rem;color:var(--text-muted)">Reporte generado el <?= $fecha ?></p>
+        <p style="margin-top:12px;font-size:0.8rem;color:var(--text-muted)"><?= t('reporteGenerado') ?><?= $fecha ?></p>
     </section>
 </main>
 
 <footer>
-    <p>© SGRSI – Proyecto Bachillerato Tecnológico</p>
+    <p><?= t('footer') ?></p>
 </footer>
 
 </body>

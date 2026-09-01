@@ -1,9 +1,7 @@
 <?php
 
-$db = "BD_SGRSI";
-$host = "localhost";
-$usuario = "root";
-$clave = "1234";
+declare(strict_types=1);
 
-$conn = new mysqli($host, $usuario, $clave, $db);
-$conn->set_charset("utf8mb4");
+require_once __DIR__ . '/app/bootstrap.php';
+
+$GLOBALS['conn'] = Database::getConnection();
