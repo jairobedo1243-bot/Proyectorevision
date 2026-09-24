@@ -38,7 +38,7 @@ if (isset($_GET['devolver'])) {
 $prestamos = Database::select(
     "SELECT p.*, u.nom, u.ape, e.modelo, e.marca, e.tipo FROM prestamo p JOIN usuario u ON p.ci_solicitante = u.ci_usuario JOIN equipo e ON p.id_equipo = e.id_equipo ORDER BY p.id_prestamo DESC"
 );
-$usuarios = Database::select('SELECT ci_usuario, nom, ape FROM usuario ORDER BY nom');
+$usuarios = Database::select('SELECT ci_usuario, nom, ape FROM usuario WHERE rol = "Solicitante" ORDER BY nom ');
 $equiposDisponibles = Database::select("SELECT * FROM equipo WHERE estado = 'Disponible'");
 ?>
 <!DOCTYPE html>

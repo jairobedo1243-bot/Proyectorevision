@@ -33,7 +33,7 @@ if (isset($_GET['cerrar']) && $permiso['ticketsCerrar']) {
 $tickets = Database::select(
     "SELECT t.*, u.nom, u.ape FROM ticket t JOIN usuario u ON t.ci_solicitante = u.ci_usuario ORDER BY t.id_ticket DESC"
 );
-$usuarios = Database::select('SELECT ci_usuario, nom, ape FROM usuario ORDER BY nom');
+$usuarios = Database::select('SELECT ci_usuario, nom, ape FROM usuario WHERE rol IN ("Solicitante", "Tecnico") ORDER BY nom');
 ?>
 <!DOCTYPE html>
 <html lang="<?= $idioma ?>">

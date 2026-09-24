@@ -9,6 +9,7 @@ $usuario = $auth->requireLogin();
 $permiso = $auth->requirePageAccess('usuarios.php', $usuario);
 $idioma = Translator::currentLanguage();
 $mensaje = '';
+$exito = false;
 
 function validarCedula(string $cedula): bool
 {
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         $mensaje = t('msgUsuarioAgregado') . $nombre;
+        $exito = true;
     }
 }
 
@@ -55,6 +57,7 @@ if (isset($_GET['eliminar'])) {
     $id = (int)$_GET['eliminar'];
     Database::execute('DELETE FROM usuario WHERE ci_usuario = ?', [$id]);
     $mensaje = t('msgUsuarioEliminado');
+    $exito = true;
 }
 
 $resultado = Database::select('SELECT ci_usuario, nom, ape, email, rol FROM usuario ORDER BY ci_usuario DESC');
@@ -120,7 +123,7 @@ $resultado = Database::select('SELECT ci_usuario, nom, ape, email, rol FROM usua
             <button type="submit"><?= t('botonAgregarUsuario') ?></button>
         </form>
 
-        <?php if ($mensaje !== ''): ?><p class="mensaje"><?= $mensaje ?></p><?php endif; ?>
+        <?php if ($mensaje !== ''): ?><p class="mensaje <?= $exito ? 'exito' : 'error' ?>"><?= $mensaje ?></p><?php endif; ?>
 
         <div class="tabla-wrapper">
             <table>
