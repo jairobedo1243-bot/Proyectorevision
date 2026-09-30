@@ -1,0 +1,102 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config/config.php';
+
+class Conexion
+{
+    private static ?mysqli $connection = null;
+
+    public static function getConnection(): mysqli
+    {
+        if (self::$connection instanceof mysqli) {
+            return self::$connection;
+        }
+
+        $connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+        if ($connection->connect_error) {
+            error_log('Error de conexión: ' . $connection->connect_error);
+            throw new RuntimeException('No se pudo conectar a la base de datos');
+        }
+
+        $connection->set_charset('utf8mb4');
+        self::$connection = $connection;
+
+        return self::$connection;
+    }
+
+    public static function select(string $sql, array $params = []): array
+    {
+        $stmt = self::prepare($sql, $params);
+        if ($stmt === null) {
+            return [];
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+        $stmt->close();
+
+        return $rows;
+    }
+
+    public static function selectOne(string $sql, array $params = []): ?array
+    {
+        $stmt = self::prepare($sql, $params);
+        if ($stmt === null) {
+            return null;
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result ? $result->fetch_assoc() : null;
+        $stmt->close();
+
+        return $row ?: null;
+    }
+
+    public static function scalar(string $sql, array $params = []): mixed
+    {
+        $row = self::selectOne($sql, $params);
+        if ($row === null) {
+            return null;
+        }
+
+        return reset($row);
+    }
+
+    public static function execute(string $sql, array $params = []): bool
+    {
+        $stmt = self::prepare($sql, $params);
+        if ($stmt === null) {
+            return false;
+        }
+
+        // Si la base rechaza la operación (dato repetido, clave foránea, etc.) devolvemos false.
+        try {
+            $success = $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            error_log('Error SQL: ' . $e->getMessage());
+            $success = false;
+        }
+        $stmt->close();
+
+        return $success;
+    }
+
+    private static function prepare(string $sql, array $params = []): ?mysqli_stmt
+    {
+        $statement = self::getConnection()->prepare($sql);
+        if ($statement === false) {
+            return null;
+        }
+
+        if ($params !== []) {
+            $types = str_repeat('s', count($params));
+            $statement->bind_param($types, ...$params);
+        }
+
+        return $statement;
+    }
+}
