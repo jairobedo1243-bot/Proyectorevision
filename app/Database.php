@@ -12,12 +12,23 @@ class Database
             return self::$connection;
         }
 
+<<<<<<< HEAD
         require_once __DIR__ . '/../config/config.php';
 
         $connection = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
         if ($connection->connect_error) {
             error_log('Error de conexión: ' . $connection->connect_error);
             throw new RuntimeException('No se pudo conectar a la base de datos');
+=======
+        $db = 'BD_SGRSI';
+        $host = 'localhost';
+        $usuario = 'root';
+        $clave = '1234';
+
+        $connection = new mysqli($host, $usuario, $clave, $db);
+        if ($connection->connect_error) {
+            throw new RuntimeException('Error de conexión: ' . $connection->connect_error);
+>>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
         }
 
         $connection->set_charset('utf8mb4');
