@@ -15,10 +15,9 @@ Es una aplicación PHP renderizada en el servidor: cada página `.php` procesa l
 
 ## Instalación
 
-<<<<<<< HEAD
-1. Copiá la carpeta del proyecto dentro de `htdocs` de XAMPP (por ejemplo `C:\xampp\htdocs\mi-proyecto\`).
+1. Copiá la carpeta del proyecto dentro de `htdocs` de XAMPP (por ejemplo `C:\xampp\htdocs\proyectorevision\`).
 2. Iniciá **Apache** y **MySQL** desde el panel de control de XAMPP.
-3. Abrí `http://localhost/phpmyadmin`, entrá a la pestaña **Importar** y elegí `BD_SGRSI.sql`. El script borra y vuelve a crear la base `BD_SGRSI`, sus tablas y los datos de prueba, así que no hace falta crearla antes.
+3. Abrí `http://localhost/phpmyadmin`, entrá a la pestaña **Importar** y elegí `sql/BD_SGRSI.sql`. El script borra y vuelve a crear la base `BD_SGRSI`, sus tablas y los datos de prueba, así que no hace falta crearla antes.
 4. Creá un usuario de MySQL propio para la aplicación (NO uses `root`). En phpMyAdmin, pestaña **SQL**, ejecutá (cambiá la clave por una tuya, larga):
    ```sql
    CREATE USER 'sgrsi_app'@'localhost' IDENTIFIED BY 'TU_CLAVE_LARGA';
@@ -26,14 +25,19 @@ Es una aplicación PHP renderizada en el servidor: cada página `.php` procesa l
    ```
    Luego copiá `config/secreto.ejemplo.php` como `config/secreto.php` y poné ahí el mismo usuario y clave. Ese archivo no se sube a GitHub.
    Además, en `C:\xampp\mysql\bin\my.ini` agregá `bind-address=127.0.0.1` bajo `[mysqld]` y reiniciá MySQL, para que solo se pueda entrar desde esta computadora.
-5. Abrí `http://localhost/<nombre-de-la-carpeta>/public/login.php` en el navegador.
-=======
-1. Copiá la carpeta del proyecto dentro de `htdocs` de XAMPP (por ejemplo `C:\xampp\htdocs\proyectorevision\`).
-2. Iniciá **Apache** y **MySQL** desde el panel de control de XAMPP.
-3. Abrí `http://localhost/phpmyadmin`, entrá a la pestaña **Importar** y elegí `BD_SGRSI.sql`. El script borra y vuelve a crear la base `BD_SGRSI`, sus tablas y los datos de prueba, así que no hace falta crearla antes.
-4. Revisá la conexión en `app/Database.php` (host `localhost`, usuario `root`, clave `1234`) y ajustá la clave si tu MySQL usa otra.
-5. Abrí `http://localhost/<nombre-de-la-carpeta>/login.php` en el navegador.
->>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
+5. Configurá Apache para que el navegador solo pueda llegar a la carpeta `public/`. Abrí `C:\xampp\apache\conf\extra\httpd-vhosts.conf`, agregá al final este bloque (ajustá la ruta si tu carpeta tiene otro nombre) y reiniciá Apache desde el panel de XAMPP:
+   ```apache
+   <VirtualHost *:80>
+       ServerName localhost
+       DocumentRoot "C:/xampp/htdocs/proyectorevision/public"
+       <Directory "C:/xampp/htdocs/proyectorevision/public">
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+   Así `config/`, `negocio/`, `datos/` y `sql/` quedan fuera del alcance del navegador (no hace falta `.htaccess`).
+   Ojo: con esta configuración `localhost` apunta solo a SGRSI, así que otros proyectos de `htdocs` dejan de abrirse con `http://localhost/<carpeta>`. phpMyAdmin sigue en `http://localhost/phpmyadmin`, porque XAMPP lo define aparte.
+6. Abrí `http://localhost/login.php` en el navegador. Las demás páginas también van directo después de `localhost/` (por ejemplo `http://localhost/prestamos.php`); la dirección vieja `http://localhost/<carpeta>/public/...` ahora da **Not Found**.
 
 ### Usuarios de prueba
 
@@ -41,19 +45,11 @@ Es una aplicación PHP renderizada en el servidor: cada página `.php` procesa l
 |-----|-------|------------|
 | Administrador | juan.perez@utu.edu.uy | Perez123! |
 | Técnico | ana.martinez@utu.edu.uy | Marti234! |
-<<<<<<< HEAD
 | Solicitante | maria.garcia@utu.edu.uy | Garcia456! |
 
 Los usuarios creados desde la pantalla de usuarios reciben una clave inicial aleatoria que se muestra una sola vez en pantalla.
 
 Si el login rechaza un usuario de prueba, importá `sql/reparar_passwords.sql` desde phpMyAdmin: regenera los hashes de los 10 usuarios de prueba.
-=======
-| Docente (perfil Solicitante) | maria.garcia@utu.edu.uy | Garcia456! |
-
-Los usuarios creados desde la pantalla de usuarios reciben la clave inicial `Default123!`.
-
-Si el login rechaza un usuario de prueba, importá `reparar_passwords.sql` desde phpMyAdmin: regenera los hashes de los 10 usuarios de prueba.
->>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
 
 ## Módulos
 
@@ -81,7 +77,6 @@ Si el login rechaza un usuario de prueba, importá `reparar_passwords.sql` desde
 
 ## Stack tecnológico
 
-<<<<<<< HEAD
 - **Lenguaje:** PHP 8+ (tipado estricto, clases en `negocio/` y `datos/`)
 - **Base de datos:** MySQL con MySQLi y consultas preparadas
 - **Autenticación:** sesiones PHP y contraseñas con bcrypt (`password_hash` / `password_verify`)
@@ -99,65 +94,24 @@ Cada capa solo le habla a la siguiente: las páginas de `public/` usan clases de
 
 | Capa | Carpeta | Qué hay |
 |------|---------|---------|
-| Presentación | `public/` | Páginas PHP (HTML + lectura de `$_POST`/`$_GET`), `css/`, `js/`, `images/`, y `includes/` con el traductor (`t()`, `tv()`) y `bootstrap.php` |
+| Presentación | `public/` | Páginas PHP (HTML + lectura de `$_POST`/`$_GET`), `CSS/`, `js/`, `images/`, y `includes/` con el traductor (`t()`, `tv()`) y `bootstrap.php` |
 | Negocio | `negocio/` | `Usuario` (validación de cédula), `Equipo`, `Prestamo`, `Ticket`, `PrestamoServicio` (prestar/devolver cambia el estado del equipo), `SessionAuth` (login, roles y permisos) |
 | Datos | `datos/` | `Conexion` (MySQLi) y un repositorio por tabla: `UsuarioRepository`, `EquipoRepository`, `PrestamoRepository`, `TicketRepository`, `HistorialRepository` |
-| Config | `config/` | `config.php`: credenciales de MySQL y autoload de las clases |
+| Config | `config/` | `config.php`: ajustes generales y autoload de las clases; `secreto.php`: usuario y clave de MySQL (no se sube a GitHub) |
 
-Las páginas siguen el mismo patrón: cargan `includes/bootstrap.php`, exigen sesión y permiso (`SessionAuth`), procesan el formulario creando un objeto de negocio y guardándolo con su repositorio, y dibujan el HTML.
-=======
-- **Lenguaje:** PHP 8+ (tipado estricto, clases en `app/`)
-- **Base de datos:** MySQL con MySQLi y consultas preparadas
-- **Autenticación:** sesiones PHP y contraseñas con bcrypt (`password_hash` / `password_verify`)
-- **Idioma:** español e inglés (clase `Translator`, funciones `t()` y `tv()`)
-- **Estilos:** `styles.css` y `login.css`, propios del proyecto
-
-## Arquitectura
-
-```
-Navegador ──GET/POST──> página PHP ──require_once──> app/bootstrap.php
-                            │                              │
-                            │                     Database · SessionAuth · Translator
-                            │                              │
-                            └────────── SQL preparado ─────┴──> MySQL (BD_SGRSI)
-```
-
-Todas las páginas protegidas siguen el mismo patrón:
-
-1. Cargan `app/bootstrap.php`.
-2. `$auth->requireLogin()` exige sesión activa (si no, redirige a `login.php`).
-3. `$auth->requirePageAccess('pagina.php', $usuario)` exige que el rol pueda ver esa página.
-4. Procesan las acciones (`POST` para altas; `?eliminar=`, `?devolver=` y `?cerrar=` para cambios).
-5. Leen los datos con `Database::select(...)` y dibujan el HTML, escribiendo los textos con `t('clave')`.
-
-### Clases de `app/`
-
-| Archivo | Responsabilidad |
-|---------|-----------------|
-| `bootstrap.php` | Carga las clases y detecta el idioma |
-| `Database.php` | Conexión MySQLi única y métodos `select`, `selectOne`, `scalar`, `execute` |
-| `SessionAuth.php` | Sesión, login/logout, roles y permisos por página |
-| `Language.php` | `Translator` con los textos es/en, y las funciones `t()` y `tv()` |
-| `App.php` | Agrupa `SessionAuth` y `Translator` |
-| `PageController.php` | Envoltorio de `SessionAuth` para las páginas |
-
-## Idioma
-
-Agregar `?idioma=es` o `?idioma=en` a cualquier URL cambia el idioma y lo guarda en una cookie por un año. `t('clave')` traduce textos de la interfaz y `tv('Valor')` traduce valores que vienen de la base (roles, estados, tipos).
->>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
+Las páginas siguen el mismo patrón: cargan `includes/bootstrap.php` (que define la constante `ENTRYPOINT`), exigen sesión y permiso (`SessionAuth`), procesan el formulario creando un objeto de negocio y guardándolo con su repositorio, y dibujan el HTML.
 
 ## Estructura del proyecto
 
 ```
-<<<<<<< HEAD
-mi-proyecto/
+proyectorevision/
 ├── public/
 │   ├── index.php, login.php, logout.php
 │   ├── recursos.php, usuarios.php, prestamos.php
 │   ├── tickets.php, reportes.php, historial.php
 │   ├── generar_hash.php        # herramienta de desarrollo (borrar al entregar)
 │   ├── includes/               # bootstrap.php, Language.php (t() y tv())
-│   ├── css/                    # styles.css, login.css
+│   ├── CSS/                    # styles.css, login.css
 │   ├── js/                     # Bootstrap 5 local (las páginas actuales no lo enlazan)
 │   └── images/
 ├── negocio/
@@ -169,43 +123,12 @@ mi-proyecto/
 │   └── UsuarioRepository.php, EquipoRepository.php, PrestamoRepository.php,
 │       TicketRepository.php, HistorialRepository.php
 ├── config/
-│   └── config.php
+│   ├── config.php
+│   ├── secreto.php             # credenciales (no se sube a GitHub)
+│   └── secreto.ejemplo.php     # plantilla para crear secreto.php
 ├── sql/                        # BD_SGRSI.sql, reparar_passwords.sql
+├── app/                        # versión anterior de algunas clases (las páginas no la usan)
 └── jairo/                      # Proyecto SQL Server alternativo
-=======
-proyectorevision/
-├── app/
-│   ├── bootstrap.php           # Carga las clases y el idioma
-│   ├── App.php
-│   ├── Database.php            # Conexión y consultas MySQL
-│   ├── Language.php            # Translator, t() y tv()
-│   ├── PageController.php
-│   └── SessionAuth.php         # Sesión, roles y permisos
-│
-├── login.php                   # Inicio de sesión
-├── logout.php                  # Cierre de sesión
-├── index.php                   # Inicio
-├── recursos.php                # Inventario de equipos
-├── usuarios.php                # Gestión de usuarios
-├── prestamos.php               # Préstamos de equipos
-├── tickets.php                 # Tickets de soporte
-├── reportes.php                # Reportes del sistema
-├── historial.php               # Historial
-├── db.php                      # Conexión global (compatibilidad)
-├── lang.php                    # Solo carga bootstrap (compatibilidad)
-│
-├── styles.css                  # Estilos globales
-├── login.css                   # Estilos del login
-├── images/                     # Recursos gráficos
-├── css/, js/                   # Bootstrap 5 local (las páginas actuales no lo enlazan)
-│
-├── BD_SGRSI.sql                # Esquema y datos de prueba
-├── reparar_passwords.sql       # Regenera los hashes de los usuarios de prueba
-├── generar_hash.php            # Herramienta de desarrollo (borrar al entregar)
-├── Readme.md                   # Este archivo
-├── jairo/                      # Proyecto SQL Server alternativo
-└── proyectorevision/           # Copia anterior del proyecto (no se usa)
->>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
 ```
 
 ## Base de datos
@@ -216,8 +139,8 @@ proyectorevision/
 |-------|----------------|-----------------|
 | `usuario` | `ci_usuario` (cédula, sin auto_increment) | — |
 | `equipo` | `id_equipo` | — |
-| `prestamo` | `id_prestamo` | `ci_usuario`, `id_equipo` |
-| `ticket` | `id_ticket` | `ci_usuario` |
+| `prestamo` | `id_prestamo` | `ci_solicitante`, `id_equipo` |
+| `ticket` | `id_ticket` | `ci_solicitante` |
 | `servicio` | `id_servicio` | `ci_usuario` |
 | `historial` | `id_historial` | `id_equipo`, `id_ticket`, `id_servicio` |
 
@@ -229,23 +152,24 @@ proyectorevision/
 - El formulario de préstamos solo ofrece equipos con estado `Disponible`; al prestar, el equipo pasa a `Prestado`, y al devolverlo vuelve a `Disponible`.
 - Solo Administrador y Técnico pueden cerrar tickets; solo Administrador gestiona usuarios.
 
+## Seguridad
+
+- **Solo `public/` es accesible desde el navegador**, gracias al `DocumentRoot` de Apache (paso 5 de la instalación).
+- **Segunda barrera:** cada archivo de `config/`, `negocio/`, `datos/` e `includes/` empieza con `defined('ENTRYPOINT') || (http_response_code(404) && exit);`. Si alguien lo abre directo, responde 404; solo funciona cuando lo carga `bootstrap.php`.
+- **Consultas preparadas** (`?` + `bind_param`) en `datos/Conexion.php`, contra inyección SQL.
+- **Contraseñas con bcrypt** (`password_hash` / `password_verify`); en la sesión nunca se guarda el hash.
+- **Login:** bloqueo de 1 minuto tras 5 intentos fallidos, espera de 0,4 s por intento fallido y `session_regenerate_id` al entrar. La cookie de sesión es `httponly` y `samesite=Lax`.
+- **CSRF:** los formularios que modifican datos llevan un token oculto (`csrf_campo()` / `csrf_valido()`).
+- **XSS:** todo lo que se muestra en pantalla pasa por `e()` (`htmlspecialchars`).
+- **Errores:** no se muestran en pantalla (`display_errors = 0`); el detalle queda en `C:\xampp\apache\logs\error.log`.
+
 ## Pendientes conocidos
 
-<<<<<<< HEAD
-- `public/prestamos.php`, `public/tickets.php` y `public/reportes.php` consultan columnas que `BD_SGRSI.sql` no crea (`estado`, `ci_solicitante`, `fechaFinPrevista`, `fechaDevolucion` en `prestamo`; `titulo`, `estado`, `ci_solicitante` en `ticket`). Hay que alinear el esquema SQL con el código, o el código con el esquema.
-- El SQL de prueba usa el rol `Docente`, pero `prestamos.php` filtra solicitantes por `rol = "Solicitante"`.
-- Los datos se imprimen sin `htmlspecialchars`; conviene escaparlos para evitar XSS.
-- Borrar, devolver y cerrar se hacen con enlaces `GET`; conviene pasarlos a `POST`.
-- Las credenciales de MySQL están escritas en `config/config.php`.
-- Borrar `public/generar_hash.php` y los usuarios de prueba del login antes de publicar.
-=======
-- `prestamos.php`, `tickets.php` y `reportes.php` consultan columnas que `BD_SGRSI.sql` no crea (`estado`, `ci_solicitante`, `fechaFinPrevista`, `fechaDevolucion` en `prestamo`; `titulo`, `estado`, `ci_solicitante` en `ticket`). Hay que alinear el esquema SQL con el código, o el código con el esquema.
-- El SQL de prueba usa el rol `Docente`, pero `prestamos.php` filtra solicitantes por `rol = "Solicitante"`.
-- Los datos se imprimen sin `htmlspecialchars`; conviene escaparlos para evitar XSS.
-- Borrar, devolver y cerrar se hacen con enlaces `GET`; conviene pasarlos a `POST`.
-- Las credenciales de MySQL están escritas en `app/Database.php`.
-- Borrar `generar_hash.php` y los usuarios de prueba del login antes de publicar.
->>>>>>> cd9f9a295c82d8e371ccd90713e4be150cbbab5b
+- Borrar `public/generar_hash.php` y los usuarios de prueba antes de publicar.
+- Usar en `config/secreto.php` un usuario propio de MySQL en lugar de `root` (paso 4 de la instalación).
+- Si una consulta falla al prepararse (por ejemplo, porque nombra una columna que no existe en la base), la excepción no se atrapa y el navegador muestra un error 500 sin explicación. El motivo se ve en `C:\xampp\apache\logs\error.log`. Si pasa después de cambiar el esquema, volvé a importar `sql/BD_SGRSI.sql`.
+- El formulario de `login.php` no lleva token CSRF (los demás formularios sí).
+- La carpeta `app/` es una versión anterior que las páginas no usan; se puede borrar.
 
 ## Equipo de desarrollo
 
