@@ -28,7 +28,7 @@ create table servicio(
 
 create table equipo(
     id_equipo int primary key auto_increment,
-    estado varchar(20) not null,
+    estado varchar(20) not null comment 'Disponible, Prestado, En reparacion',
     numeroSerie varchar(20) not null unique,
     modelo varchar(20) not null,
     marca varchar(20) not null,
@@ -86,6 +86,7 @@ INSERT INTO usuario (ci_usuario, nom, ape, email, contrasena, rol) VALUES
 (37456105, 'Diego', 'Torres', 'diego.torres@utu.edu.uy', '$2y$12$Cg1amuTm6HPuSm3uWp4ozO7.Ao.z48vq4PcApHQ2b2q.h5HWFuQyq', 'Administrador'),
 (49082730, 'Martin', 'Gonzalez', 'martin.gonzalez@utu.edu.uy', '$2y$12$H6FY1olj3nb2JxNAVQOXr.2NKNTC9p6r0tg9o4zprUe3HRt//dfmO', 'Solicitante'),
 (52610499, 'Valeria', 'Castro', 'valeria.castro@utu.edu.uy', '$2y$12$xkTT4M8saJGlcOHYI1e0MOdOJ9tohN6i1vDITtzSJ.5G.rnvilJI6', 'Tecnico');
+
 
 INSERT INTO equipo (id_equipo, estado, numeroSerie, modelo, marca, tipo) VALUES
 (1, 'Disponible', 'SN-001-ABC', 'ProDesk 400', 'HP', 'PC'),
