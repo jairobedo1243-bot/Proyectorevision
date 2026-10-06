@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-
+defined('ENTRYPOINT') || (http_response_code(404) && exit);
 class HistorialRepository
 {
     public function listarDetallado(): array
