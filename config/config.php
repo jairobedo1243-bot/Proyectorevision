@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+defined('ENTRYPOINT') || (http_response_code(404) && exit);
 
 // Configuración global.
 // Las credenciales NO van acá: están en config/secreto.php (no se sube a GitHub).
