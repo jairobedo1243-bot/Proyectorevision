@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+define('ENTRYPOINT', true);
+
 // Punto de entrada común de todas las páginas de public/.
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/Language.php';
@@ -37,3 +39,4 @@ function csrf_valido(): bool
     return isset($_POST['csrf'], $_SESSION['csrf'])
         && hash_equals($_SESSION['csrf'], (string)$_POST['csrf']);
 }
+
