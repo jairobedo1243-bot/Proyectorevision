@@ -18,22 +18,27 @@ class TicketRepository
         );
     }
 
+    /** Cierra el ticket. Devuelve false si no existía o ya estaba cerrado. */
     public function cerrar(int $idTicket): bool
     {
-        return Conexion::execute(
-            "UPDATE ticket SET estado = 'Cerrado', fechaFin = NOW() WHERE id_ticket = ?",
+        return Conexion::filasAfectadas(
+            "UPDATE ticket SET estado = 'Cerrado', fechaFin = NOW() WHERE id_ticket = ? AND estado != 'Cerrado'",
             [$idTicket]
-        );
+        ) === 1;
     }
 
-    public function listarConSolicitante(): array
+    /** Lista los tickets; si se pasa una cédula, solo los de esa persona. */
+    public function listarConSolicitante(?int $ciSolicitante = null): array
     {
-        return Conexion::select(
-            'SELECT t.*, u.nom, u.ape
-             FROM ticket t
-             JOIN usuario u ON t.ci_solicitante = u.ci_usuario
-             ORDER BY t.id_ticket DESC'
-        );
+        $sql = 'SELECT t.*, u.nom, u.ape
+                FROM ticket t
+                JOIN usuario u ON t.ci_solicitante = u.ci_usuario';
+
+        if ($ciSolicitante !== null) {
+            return Conexion::select($sql . ' WHERE t.ci_solicitante = ? ORDER BY t.id_ticket DESC', [$ciSolicitante]);
+        }
+
+        return Conexion::select($sql . ' ORDER BY t.id_ticket DESC');
     }
 
     public function contarAbiertos(): int
