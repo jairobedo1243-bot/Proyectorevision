@@ -52,7 +52,7 @@ class SessionAuth
      */
     public function autenticar(string $email, string $contrasena): bool
     {
-        // Si hubo muchos intentos fallidos, se bloquea 1 minuto.
+        // Si hubo 5 intentos fallidos, se bloquea 10 minutos.
         if ($this->estaBloqueado()) {
             return false;
         }
@@ -62,7 +62,7 @@ class SessionAuth
         if ($usuario === null || !password_verify($contrasena, (string)($usuario['contrasena'] ?? ''))) {
             $_SESSION['intentos'] = (int)($_SESSION['intentos'] ?? 0) + 1;
             if ($_SESSION['intentos'] >= 5) {
-                $_SESSION['bloqueo_hasta'] = time() + 60;
+                $_SESSION['bloqueo_hasta'] = time() + 600; // bloquea 10 minutos
                 $_SESSION['intentos'] = 0;
             }
             usleep(400000); // frena los ataques de fuerza bruta
@@ -109,14 +109,45 @@ class SessionAuth
         session_destroy();
     }
 
-    public function requireLogin(): array
+    /**
+     * @param bool $permitirCambioClave true solo en cambiar_clave.php: ahí un usuario con
+     *                                  clave inicial SÍ puede estar. En cualquier otra
+     *                                  página se lo manda a cambiarla antes de seguir.
+     */
+    public function requireLogin(bool $permitirCambioClave = false): array
     {
         if (!$this->isLoggedIn()) {
             header('Location: login.php');
             exit;
         }
 
+        // Si un administrador dio de baja a este usuario, su sesión abierta deja de valer.
+        if (!$this->usuarios->estaActivo((int)($this->getUser()['ci_usuario'] ?? 0))) {
+            $this->logout();
+            header('Location: login.php');
+            exit;
+        }
+
+        // Cambio obligatorio: se consulta la base en cada página (no una marca de la sesión),
+        // así no hay forma de saltearlo hasta que la clave inicial se cambie de verdad.
+        if (!$permitirCambioClave && $this->usuarios->debeCambiarClave((int)($this->getUser()['ci_usuario'] ?? 0))) {
+            header('Location: cambiar_clave.php');
+            exit;
+        }
+
         return $this->getUser();
+    }
+
+    /** Reglas de la clave nueva. Devuelve null si cumple, o el nombre del mensaje de error. */
+    public static function validarClaveNueva(string $clave): ?string
+    {
+        if (mb_strlen($clave) < 8 || mb_strlen($clave) > 72) {
+            return 'msgClaveLongitud';
+        }
+        if (!preg_match('/[a-z]/', $clave) || !preg_match('/[A-Z]/', $clave) || !preg_match('/[0-9]/', $clave)) {
+            return 'msgClaveComplejidad';
+        }
+        return null;
     }
 
     public function permissionsForRole(string $role): array

@@ -8,13 +8,20 @@ CREATE DATABASE BD_SGRSI CHARACTER SET utf8mb4;
 use BD_SGRSI;
 
 -- ci_usuario es la CEDULA (8 digitos, sin puntos ni guion).
+-- activo: baja LOGICA (RF-06 / RN-10). Dar de baja a un usuario pone activo = 0:
+-- no puede iniciar sesion y deja de aparecer en las listas, pero el registro se
+-- conserva para no romper la integridad referencial con prestamos, tickets y servicios.
 create table usuario(
     ci_usuario int primary key,
     nom varchar(20) not null,
     ape varchar(20) not null,
     email varchar(80) not null unique,
     contrasena varchar(255) not null,
-    rol varchar(20) not null
+    rol varchar(20) not null,
+    activo tinyint(1) not null default 1,
+    -- debe_cambiar_clave = 1: el usuario recien creado por el Administrador tiene que
+    -- cambiar la clave inicial la primera vez que entra (no puede usar el sistema antes).
+    debe_cambiar_clave tinyint(1) not null default 0
 );
 
 create table servicio(
