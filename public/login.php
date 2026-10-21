@@ -6,19 +6,28 @@ require_once __DIR__ . '/includes/bootstrap.php';
 
 $auth = new SessionAuth();
 $error = '';
+$email = '';
+
+// Si ya hay sesión abierta, no tiene sentido volver a loguearse.
+if ($auth->isLoggedIn()) {
+    header('Location: index.php');
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim((string)($_POST['email'] ?? ''));
     $contrasena = (string)($_POST['contrasena'] ?? '');
 
-    if ($auth->autenticar($email, $contrasena)) {
+    if (!csrf_valido()) {
+        $error = 'La página expiró, volvé a intentar';
+    } elseif ($auth->autenticar($email, $contrasena)) {
         header('Location: index.php');
         exit;
+    } else {
+        $error = $auth->estaBloqueado()
+            ? 'Demasiados intentos. Esperá 10 minutos.'
+            : 'Credenciales inválidas';
     }
-
-    $error = $auth->estaBloqueado()
-        ? 'Demasiados intentos. Esperá 1 minuto.'
-        : 'Credenciales inválidas';
 }
 ?>
 <!DOCTYPE html>
@@ -45,20 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="login-error" style="display:<?= $error !== '' ? 'block' : 'none' ?>"><?= e($error) ?></div>
 
         <form method="POST">
+            <?= csrf_campo() ?>
             <label for="email">Correo electrónico</label>
-            <input type="email" id="email" name="email" placeholder="ejemplo@utu.edu.uy" required>
+            <input type="email" id="email" name="email" placeholder="ejemplo@utu.edu.uy" value="<?= e($email) ?>" maxlength="80" autocomplete="username" required>
 
             <label for="contrasena">Contraseña</label>
-
+            
             <div style="position:relative;">
-                <input type="password" id="contrasena" name="contrasena" required style="padding-right:44px;">
-
-                <button type="button" id="btnVerPass" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute; top:0; right:0; width:42px; height:calc(100% - 18px); padding:0; margin:0; background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6b7280;">
+                <input type="password" id="contrasena" name="contrasena" autocomplete="current-password" required style="padding-right:44px;">
+               
+                <button type="button" id="btnVerPass" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute; top:4px; right:0; width:42px; height:calc(100% - 22px); padding:0; margin:0; background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#6b7280; transform:none;">
                     <svg id="iconoOjoAbierto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                     </svg>
-
                     <svg id="iconoOjoCerrado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
                         <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
@@ -66,6 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <line x1="1" y1="1" x2="23" y2="23"></line>
                     </svg>
                 </button>
+            </div>
+
+            <!-- Usuarios de prueba (referencia para la demostración). Borrar antes de usar el sistema con datos reales. -->
+            <div class="usuarios-prueba" style="margin:4px 0 16px; padding:10px 12px; border:1px dashed #cbd5e1; border-radius:8px; background:#f8fafc; color:#334155; text-align:left;">
+                <h1 style="font-size:13px; font-weight:600; margin:0 0 4px;">Administrador: juan.perez@utu.edu.uy · Perez123!</h1>
+                <h2 style="font-size:13px; font-weight:600; margin:0 0 4px;">Técnico: ana.martinez@utu.edu.uy · Marti234!</h2>
+                <h3 style="font-size:13px; font-weight:600; margin:0;">Solicitante: maria.garcia@utu.edu.uy · Garcia456!</h3>
             </div>
 
             <button type="submit">Ingresar</button>
@@ -87,6 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     btnVerPass.addEventListener('click', function () {
         const estaOculta = inputPass.type === 'password';
         inputPass.type = estaOculta ? 'text' : 'password';
+        btnVerPass.setAttribute('aria-label', estaOculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        btnVerPass.title = estaOculta ? 'Ocultar contraseña' : 'Mostrar contraseña';
         ojoAbierto.style.display = estaOculta ? 'none' : 'block';
         ojoCerrado.style.display = estaOculta ? 'block' : 'none';
         inputPass.focus();
