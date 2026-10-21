@@ -22,7 +22,7 @@ class Translator
             'bienvenidaTitulo' => 'Bienvenido a SGRSI',
             'bienvenidaTexto' => 'Gestioná equipos, usuarios, préstamos y tickets de soporte desde un solo lugar. Usá el menú de arriba o accedé directamente a cada módulo.',
             'moduloInventarioDesc' => 'Registrá y consultá los equipos disponibles.',
-            'moduloUsuariosDesc' => 'Alta de solicitantes, técnicos y administradores.',
+            'moduloUsuariosDesc' => 'Alta y baja de solicitantes, técnicos y administradores.',
             'moduloPrestamosDesc' => 'Registrá préstamos y devoluciones de equipos.',
             'moduloTicketsDesc' => 'Mesa de ayuda: abrí y cerrá tickets de soporte.',
             'moduloReportesDesc' => 'Resumen del estado del sistema en tiempo real.',
@@ -59,14 +59,14 @@ class Translator
             'botonAgregarUsuario' => 'Agregar Usuario',
             'msgCedulaInvalida' => 'La cédula no es válida (revisá el dígito verificador)',
             'msgUsuarioAgregado' => 'Usuario agregado: ',
-            'msgUsuarioEliminado' => 'Usuario eliminado',
+            'msgUsuarioEliminado' => 'Usuario dado de baja',
             'thCedula' => 'Cédula',
             'thNombre' => 'Nombre',
             'thCorreo' => 'Correo',
             'thRol' => 'Rol',
             'thAccionCol' => 'Acción',
-            'botonEliminar' => 'Eliminar',
-            'confirmEliminarUsuario' => '¿Eliminar este usuario?',
+            'botonEliminar' => 'Dar de baja',
+            'confirmEliminarUsuario' => '¿Dar de baja a este usuario? No va a poder entrar al sistema, pero sus préstamos, tickets y servicios se conservan.',
             'tituloPrestamos' => 'SGRSI – Préstamos',
             'registroPrestamosTitulo' => 'Registro de Préstamos',
             'labelSolicitante' => 'Solicitante',
@@ -98,6 +98,16 @@ class Translator
             'thPrioridad' => 'Prioridad',
             'thProblema' => 'Problema',
             'botonCerrar' => 'Cerrar',
+            'botonEditar' => 'Editar',
+            'botonGuardarCambios' => 'Guardar cambios',
+            'botonCancelar' => 'Cancelar',
+            'editandoTicket' => 'Editando el ticket',
+            'editandoPrestamo' => 'Editando el préstamo',
+            'msgTicketEditado' => 'Ticket actualizado',
+            'msgTicketNoEditable' => 'No se pudo editar: el ticket no es tuyo o ya está cerrado',
+            'msgPrestamoEditado' => 'Préstamo actualizado',
+            'msgPrestamoNoEditable' => 'No se pudo editar: el préstamo no es tuyo o ya fue devuelto',
+            'msgSinPermisoEditar' => 'Solo el solicitante puede editar sus propios registros',
             'tituloReportes' => 'SGRSI – Reportes',
             'reportesTitulo' => 'Reportes del Sistema',
             'reportesDesc' => 'Resumen del estado actual del inventario, préstamos y tickets.',
@@ -122,6 +132,46 @@ class Translator
             'thDescripcion' => 'Descripción',
             'thTicket' => 'Ticket',
             'thServicio' => 'Servicio',
+            'msgSolicitudInvalida' => 'Solicitud no válida, recargá la página',
+            'msgCompletarCampos' => 'Completá todos los campos correctamente',
+            'msgEquipoNoGuardado' => 'No se pudo guardar el equipo (¿el número de serie ya existe?)',
+            'msgNoEliminarPropio' => 'No podés darte de baja a vos mismo',
+            'msgUsuarioNoEliminado' => 'No se pudo dar de baja (el usuario no existe o ya estaba dado de baja)',
+            'msgNombreInvalido' => 'Escribí el nombre del usuario',
+            'msgCorreoInvalido' => 'El correo no es válido',
+            'msgRolInvalido' => 'El rol no es válido',
+            'msgUsuarioNoAgregado' => 'No se pudo agregar (la cédula ya está en un usuario activo, o el correo pertenece a otra persona)',
+            'msgUsuarioReactivado' => ' (volvió a darse de alta y conserva su historial)',
+            'msgContrasenaInicial' => ' — Contraseña inicial: ',
+            'msgAnotala' => ' (anotala, no se vuelve a mostrar)',
+            'msgDebeCambiarla' => '. Tiene que cambiarla obligatoriamente la primera vez que ingrese',
+            'tituloCambiarClave' => 'SGRSI – Cambiar contraseña',
+            'cambiarClaveTitulo' => 'Cambiá tu contraseña',
+            'cambiarClaveAviso' => 'Es tu primer ingreso: la contraseña que te dieron es provisoria. Elegí una nueva para poder usar el sistema.',
+            'labelClaveActual' => 'Contraseña actual (la que te dieron)',
+            'labelClaveNueva' => 'Contraseña nueva',
+            'labelClaveRepetir' => 'Repetí la contraseña nueva',
+            'ayudaClaveNueva' => 'Mínimo 8 caracteres, con mayúscula, minúscula y número.',
+            'botonCambiarClave' => 'Cambiar contraseña',
+            'msgClaveCambiada' => 'Contraseña cambiada. Ya podés usar el sistema.',
+            'msgClaveActualIncorrecta' => 'La contraseña actual no es correcta',
+            'msgClaveNoCoincide' => 'Las contraseñas nuevas no coinciden',
+            'msgClaveIgualActual' => 'La contraseña nueva tiene que ser distinta de la actual',
+            'msgClaveLongitud' => 'La contraseña nueva tiene que tener entre 8 y 72 caracteres',
+            'msgClaveComplejidad' => 'La contraseña nueva necesita al menos una mayúscula, una minúscula y un número',
+            'msgClaveNoGuardada' => 'No se pudo guardar la contraseña, intentá de nuevo',
+            'msgDemasiadosIntentosClave' => 'Demasiados intentos. Volvé a ingresar',
+            'msgSinPermisoDevolver' => 'No tenés permiso para registrar devoluciones',
+            'msgPrestamoYaDevuelto' => 'Ese préstamo ya estaba devuelto',
+            'msgElegirSolicitanteEquipo' => 'Elegí un solicitante y un equipo',
+            'msgFechaInvalida' => 'La fecha de devolución no es válida (no puede ser anterior a hoy)',
+            'msgPrestamoNoRegistrado' => 'No se pudo registrar (el equipo ya no está disponible)',
+            'msgSinPermisoCerrar' => 'No tenés permiso para cerrar tickets',
+            'msgTicketYaCerrado' => 'Ese ticket ya estaba cerrado',
+            'msgTicketNoCreado' => 'No se pudo crear el ticket',
+            'avisoATuNombre' => 'Se registra a tu nombre: ',
+            'sinRegistros' => 'No hay registros todavía.',
+            'usuarioDadoDeBaja' => 'dado de baja',
         ],
         'en' => [
             'appSubtitulo' => 'Resource and IT Support Management System',
@@ -138,7 +188,7 @@ class Translator
             'bienvenidaTitulo' => 'Welcome to SGRSI',
             'bienvenidaTexto' => 'Manage equipment, users, loans and support tickets from one place. Use the menu above or go straight to each module.',
             'moduloInventarioDesc' => 'Register and check available equipment.',
-            'moduloUsuariosDesc' => 'Add requesters, technicians and administrators.',
+            'moduloUsuariosDesc' => 'Add and deactivate requesters, technicians and administrators.',
             'moduloPrestamosDesc' => 'Register equipment loans and returns.',
             'moduloTicketsDesc' => 'Help desk: open and close support tickets.',
             'moduloReportesDesc' => 'Real-time summary of the system status.',
@@ -175,14 +225,14 @@ class Translator
             'botonAgregarUsuario' => 'Add User',
             'msgCedulaInvalida' => 'The ID number is not valid (check the verification digit)',
             'msgUsuarioAgregado' => 'User added: ',
-            'msgUsuarioEliminado' => 'User deleted',
+            'msgUsuarioEliminado' => 'User deactivated',
             'thCedula' => 'ID',
             'thNombre' => 'Name',
             'thCorreo' => 'Email',
             'thRol' => 'Role',
             'thAccionCol' => 'Action',
-            'botonEliminar' => 'Delete',
-            'confirmEliminarUsuario' => 'Delete this user?',
+            'botonEliminar' => 'Deactivate',
+            'confirmEliminarUsuario' => 'Deactivate this user? They will no longer be able to log in, but their loans, tickets and services are kept.',
             'tituloPrestamos' => 'SGRSI – Loans',
             'registroPrestamosTitulo' => 'Loan Registration',
             'labelSolicitante' => 'Requester',
@@ -214,6 +264,16 @@ class Translator
             'thPrioridad' => 'Priority',
             'thProblema' => 'Problem',
             'botonCerrar' => 'Close',
+            'botonEditar' => 'Edit',
+            'botonGuardarCambios' => 'Save changes',
+            'botonCancelar' => 'Cancel',
+            'editandoTicket' => 'Editing ticket',
+            'editandoPrestamo' => 'Editing loan',
+            'msgTicketEditado' => 'Ticket updated',
+            'msgTicketNoEditable' => 'Could not edit: the ticket is not yours or is already closed',
+            'msgPrestamoEditado' => 'Loan updated',
+            'msgPrestamoNoEditable' => 'Could not edit: the loan is not yours or was already returned',
+            'msgSinPermisoEditar' => 'Only the requester can edit their own records',
             'tituloReportes' => 'SGRSI – Reports',
             'reportesTitulo' => 'System Reports',
             'reportesDesc' => 'Summary of the current status of inventory, loans and tickets.',
@@ -238,6 +298,46 @@ class Translator
             'thDescripcion' => 'Description',
             'thTicket' => 'Ticket',
             'thServicio' => 'Service',
+            'msgSolicitudInvalida' => 'Invalid request, please reload the page',
+            'msgCompletarCampos' => 'Please fill in all fields correctly',
+            'msgEquipoNoGuardado' => 'Could not save the equipment (does the serial number already exist?)',
+            'msgNoEliminarPropio' => 'You cannot deactivate your own user',
+            'msgUsuarioNoEliminado' => 'Could not deactivate (the user does not exist or was already deactivated)',
+            'msgNombreInvalido' => 'Enter the user\'s name',
+            'msgCorreoInvalido' => 'The email address is not valid',
+            'msgRolInvalido' => 'The role is not valid',
+            'msgUsuarioNoAgregado' => 'Could not add (the ID belongs to an active user, or the email belongs to someone else)',
+            'msgUsuarioReactivado' => ' (signed up again and keeps their history)',
+            'msgContrasenaInicial' => ' — Initial password: ',
+            'msgAnotala' => ' (write it down, it will not be shown again)',
+            'msgDebeCambiarla' => '. They must change it the first time they sign in',
+            'tituloCambiarClave' => 'SGRSI – Change password',
+            'cambiarClaveTitulo' => 'Change your password',
+            'cambiarClaveAviso' => 'This is your first sign-in: the password you were given is temporary. Choose a new one to use the system.',
+            'labelClaveActual' => 'Current password (the one you were given)',
+            'labelClaveNueva' => 'New password',
+            'labelClaveRepetir' => 'Repeat the new password',
+            'ayudaClaveNueva' => 'At least 8 characters, with an uppercase letter, a lowercase letter and a number.',
+            'botonCambiarClave' => 'Change password',
+            'msgClaveCambiada' => 'Password changed. You can now use the system.',
+            'msgClaveActualIncorrecta' => 'The current password is not correct',
+            'msgClaveNoCoincide' => 'The new passwords do not match',
+            'msgClaveIgualActual' => 'The new password must be different from the current one',
+            'msgClaveLongitud' => 'The new password must be between 8 and 72 characters',
+            'msgClaveComplejidad' => 'The new password needs at least one uppercase letter, one lowercase letter and one number',
+            'msgClaveNoGuardada' => 'The password could not be saved, try again',
+            'msgDemasiadosIntentosClave' => 'Too many attempts. Please sign in again',
+            'msgSinPermisoDevolver' => 'You are not allowed to register returns',
+            'msgPrestamoYaDevuelto' => 'That loan was already returned',
+            'msgElegirSolicitanteEquipo' => 'Choose a requester and a piece of equipment',
+            'msgFechaInvalida' => 'The return date is not valid (it cannot be earlier than today)',
+            'msgPrestamoNoRegistrado' => 'Could not register (the equipment is no longer available)',
+            'msgSinPermisoCerrar' => 'You are not allowed to close tickets',
+            'msgTicketYaCerrado' => 'That ticket was already closed',
+            'msgTicketNoCreado' => 'Could not create the ticket',
+            'avisoATuNombre' => 'It will be registered under your name: ',
+            'sinRegistros' => 'No records yet.',
+            'usuarioDadoDeBaja' => 'deactivated',
         ],
     ];
 
@@ -290,19 +390,33 @@ class Translator
         ],
     ];
 
+    // Idioma ya calculado en esta petición (así la cookie se envía una sola vez,
+    // antes de que empiece el HTML, y no se repite en cada t()).
+    private static ?string $actual = null;
+
     public static function currentLanguage(): string
     {
+        if (self::$actual !== null) {
+            return self::$actual;
+        }
+
         if (isset($_GET['idioma']) && in_array($_GET['idioma'], ['es', 'en'], true)) {
-            $language = $_GET['idioma'];
-            setcookie('idioma', $language, time() + 60 * 60 * 24 * 365, '/');
-            return $language;
+            self::$actual = $_GET['idioma'];
+            if (!headers_sent()) {
+                setcookie('idioma', self::$actual, [
+                    'expires' => time() + 60 * 60 * 24 * 365,
+                    'path' => '/',
+                    'samesite' => 'Lax',
+                ]);
+            }
+            return self::$actual;
         }
 
         if (isset($_COOKIE['idioma']) && in_array($_COOKIE['idioma'], ['es', 'en'], true)) {
-            return $_COOKIE['idioma'];
+            return self::$actual = $_COOKIE['idioma'];
         }
 
-        return self::DEFAULT_LANGUAGE;
+        return self::$actual = self::DEFAULT_LANGUAGE;
     }
 
     public static function translate(string $key): string

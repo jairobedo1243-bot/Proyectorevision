@@ -8,7 +8,6 @@ $auth = new SessionAuth();
 $usuario = $auth->requireLogin();
 $permiso = $auth->requirePageAccess('prestamos.php', $usuario);
 $idioma = Translator::currentLanguage();
-$mensaje = '';
 
 $servicio = new PrestamoServicio();
 $prestamosRepo = new PrestamoRepository();
@@ -17,42 +16,74 @@ $esPersonal = $permiso['ticketsCerrar']; // Administrador y Técnico
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_valido()) {
-        $mensaje = 'Solicitud no válida, recargá la página';
+        flash_y_volver(t('msgSolicitudInvalida'), false);
     } elseif (isset($_POST['devolver'])) {
         if (!$esPersonal) {
-            $mensaje = 'No tenés permiso para registrar devoluciones';
+            flash_y_volver(t('msgSinPermisoDevolver'), false);
         } elseif ($servicio->devolver((int)$_POST['devolver'])) {
-            $mensaje = t('msgEquipoDevuelto');
+            flash_y_volver(t('msgEquipoDevuelto'), true);
         } else {
-            $mensaje = 'Ese préstamo ya estaba devuelto';
+            flash_y_volver(t('msgPrestamoYaDevuelto'), false);
+        }
+    } elseif (isset($_POST['editar'])) {
+        // Solo el solicitante edita, y únicamente sus propios préstamos sin devolver.
+        $fecha = trim((string)($_POST['fechaFinPrevista'] ?? ''));
+        $fechaObj = DateTime::createFromFormat('!Y-m-d', $fecha);
+        $fechaOk = $fechaObj !== false && $fechaObj->format('Y-m-d') === $fecha && $fecha >= date('Y-m-d');
+
+        if ($esPersonal) {
+            flash_y_volver(t('msgSinPermisoEditar'), false);
+        } elseif (!$fechaOk) {
+            flash_y_volver(t('msgFechaInvalida'), false);
+        } elseif ($prestamosRepo->actualizarPropio(
+            (int)$_POST['editar'],
+            (int)$usuario['ci_usuario'],
+            $fecha,
+            mb_substr(trim((string)($_POST['observacion'] ?? '')), 0, 100)
+        )) {
+            flash_y_volver(t('msgPrestamoEditado'), true);
+        } else {
+            flash_y_volver(t('msgPrestamoNoEditable'), false);
         }
     } else {
         // Un solicitante solo puede pedir prestado a su propio nombre.
         $ci = $esPersonal ? (int)($_POST['ciSolicitante'] ?? 0) : (int)$usuario['ci_usuario'];
+        $idEquipo = (int)($_POST['idEquipo'] ?? 0);
         $fecha = trim((string)($_POST['fechaFinPrevista'] ?? ''));
-        $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
+        $fechaObj = DateTime::createFromFormat('!Y-m-d', $fecha);
         $fechaOk = $fechaObj !== false && $fechaObj->format('Y-m-d') === $fecha && $fecha >= date('Y-m-d');
 
-        if ($ci <= 0 || (int)($_POST['idEquipo'] ?? 0) <= 0) {
-            $mensaje = 'Elegí un solicitante y un equipo';
+        if ($ci <= 0 || $idEquipo <= 0) {
+            flash_y_volver(t('msgElegirSolicitanteEquipo'), false);
         } elseif (!$fechaOk) {
-            $mensaje = 'La fecha de devolución no es válida (no puede ser anterior a hoy)';
+            flash_y_volver(t('msgFechaInvalida'), false);
         } elseif ($servicio->registrar(new Prestamo(
             $ci,
-            (int)$_POST['idEquipo'],
+            $idEquipo,
             $fecha,
             mb_substr(trim((string)($_POST['observacion'] ?? '')), 0, 100)
         ))) {
-            $mensaje = t('msgPrestamoRegistrado');
+            flash_y_volver(t('msgPrestamoRegistrado'), true);
         } else {
-            $mensaje = 'No se pudo registrar (el equipo ya no está disponible)';
+            flash_y_volver(t('msgPrestamoNoRegistrado'), false);
         }
     }
 }
 
-$prestamos = $prestamosRepo->listarConDetalle();
+$flash = flash_tomar();
+// El personal ve todos los préstamos; un solicitante solo los suyos.
+$prestamos = $prestamosRepo->listarConDetalle($esPersonal ? null : (int)$usuario['ci_usuario']);
 $usuarios = (new UsuarioRepository())->listarSolicitantes();
 $equiposDisponibles = (new EquipoRepository())->listarDisponibles();
+
+// Edición: ?editar=ID precarga el formulario con un préstamo propio todavía sin devolver.
+$prestamoEditar = null;
+if (!$esPersonal && isset($_GET['editar'])) {
+    $prestamoEditar = $prestamosRepo->obtenerPropio((int)$_GET['editar'], (int)$usuario['ci_usuario']);
+    if ($prestamoEditar !== null && $prestamoEditar['estado'] !== 'Entregado') {
+        $prestamoEditar = null;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $idioma ?>">
@@ -96,32 +127,45 @@ $equiposDisponibles = (new EquipoRepository())->listarDisponibles();
 
         <form method="POST">
             <?= csrf_campo() ?>
+            <?php if ($prestamoEditar !== null): ?>
+                <input type="hidden" name="editar" value="<?= e($prestamoEditar['id_prestamo']) ?>">
+                <p class="mensaje info"><?= t('editandoPrestamo') ?> #<?= e($prestamoEditar['id_prestamo']) ?></p>
+            <?php endif; ?>
             <label for="ciSolicitante"><?= t('labelSolicitante') ?></label>
+            <?php if ($esPersonal): ?>
             <select id="ciSolicitante" name="ciSolicitante" required>
                 <option value=""><?= t('opcionSeleccionarSolicitante') ?></option>
                 <?php foreach ($usuarios as $u): ?>
                     <option value="<?= e($u['ci_usuario']) ?>"><?= e($u['nom']) ?> <?= e($u['ape']) ?></option>
                 <?php endforeach; ?>
             </select>
+            <?php else: ?>
+            <p class="mensaje info"><?= t('avisoATuNombre') ?><?= e($usuario['nom']) ?> <?= e($usuario['ape']) ?></p>
+            <?php endif; ?>
 
+            <?php if ($prestamoEditar === null): ?>
             <label for="idEquipo"><?= t('labelEquipo') ?></label>
             <select id="idEquipo" name="idEquipo" required>
                 <option value=""><?= t('opcionSeleccionarEquipo') ?></option>
                 <?php foreach ($equiposDisponibles as $e): ?>
-                    <option value="<?= e($e['id_equipo']) ?>"><?= e($e['modelo']) ?> (<?= tv($e['tipo']) ?>)</option>
+                    <option value="<?= e($e['id_equipo']) ?>"><?= e($e['modelo']) ?> – <?= e($e['marca']) ?> (<?= e(tv($e['tipo'])) ?>, <?= e($e['numeroSerie']) ?>)</option>
                 <?php endforeach; ?>
             </select>
+            <?php endif; ?>
 
             <label for="fechaFinPrevista"><?= t('labelFechaDevolucion') ?></label>
-            <input type="date" id="fechaFinPrevista" name="fechaFinPrevista" required>
+            <input type="date" id="fechaFinPrevista" name="fechaFinPrevista" min="<?= date('Y-m-d') ?>" value="<?= e($prestamoEditar['fechaFinPrevista'] ?? '') ?>" required>
 
             <label for="observacion"><?= t('labelObservacion') ?></label>
-            <input type="text" id="observacion" name="observacion" placeholder="<?= t('placeholderObservacion') ?>">
+            <input type="text" id="observacion" name="observacion" maxlength="100" placeholder="<?= t('placeholderObservacion') ?>" value="<?= e($prestamoEditar['observacion'] ?? '') ?>">
 
-            <button type="submit"><?= t('botonRegistrarPrestamo') ?></button>
+            <button type="submit"><?= $prestamoEditar !== null ? t('botonGuardarCambios') : t('botonRegistrarPrestamo') ?></button>
+            <?php if ($prestamoEditar !== null): ?>
+                <a href="prestamos.php" class="btn-sm" style="margin-left:8px;"><?= t('botonCancelar') ?></a>
+            <?php endif; ?>
         </form>
 
-        <?php if ($mensaje !== ''): ?><p class="mensaje"><?= e($mensaje) ?></p><?php endif; ?>
+        <?= flash_html($flash) ?>
 
         <div class="tabla-wrapper">
             <table>
@@ -134,13 +178,16 @@ $equiposDisponibles = (new EquipoRepository())->listarDisponibles();
                     ?>
                         <tr>
                             <td><?= $i ?></td>
-                            <td><?= e($p['nom']) ?> <?= e($p['ape']) ?></td>
+                            <td><?= e(nombre_persona($p)) ?></td>
                             <td><?= e($p['modelo']) ?></td>
                             <td><?= tv($p['tipo']) ?></td>
                             <td><?= e($p['fechaFinPrevista']) ?></td>
                             <td><span class="badge <?= $prestado ? 'badge-warning' : 'badge-success' ?>"><?= tv($p['estado']) ?></span></td>
                             <td>
                                 <?php if ($prestado): ?>
+                                    <?php if (!$esPersonal): ?>
+                                    <a href="?editar=<?= e($p['id_prestamo']) ?>" class="btn-sm"><?= t('botonEditar') ?></a>
+                                    <?php endif; ?>
                                     <?php if ($esPersonal): ?>
                                     <form method="post" style="display:inline">
                                         <?= csrf_campo() ?>
@@ -152,6 +199,7 @@ $equiposDisponibles = (new EquipoRepository())->listarDisponibles();
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if ($prestamos === []): ?><tr><td colspan="7" class="empty-state"><?= t('sinRegistros') ?></td></tr><?php endif; ?>
                 </tbody>
             </table>
         </div>

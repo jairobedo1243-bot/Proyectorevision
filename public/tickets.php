@@ -8,7 +8,6 @@ $auth = new SessionAuth();
 $usuario = $auth->requireLogin();
 $permiso = $auth->requirePageAccess('tickets.php', $usuario);
 $idioma = Translator::currentLanguage();
-$mensaje = '';
 
 $ticketsRepo = new TicketRepository();
 
@@ -16,13 +15,29 @@ $esPersonal = $permiso['ticketsCerrar']; // Administrador y Técnico
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_valido()) {
-        $mensaje = 'Solicitud no válida, recargá la página';
+        flash_y_volver(t('msgSolicitudInvalida'), false);
     } elseif (isset($_POST['cerrar'])) {
-        if ($esPersonal) {
-            $ticketsRepo->cerrar((int)$_POST['cerrar']);
-            $mensaje = t('msgTicketCerrado');
+        if (!$esPersonal) {
+            flash_y_volver(t('msgSinPermisoCerrar'), false);
+        } elseif ($ticketsRepo->cerrar((int)$_POST['cerrar'])) {
+            flash_y_volver(t('msgTicketCerrado'), true);
         } else {
-            $mensaje = 'No tenés permiso para cerrar tickets';
+            flash_y_volver(t('msgTicketYaCerrado'), false);
+        }
+    } elseif (isset($_POST['editar'])) {
+        // Solo el solicitante edita, y únicamente sus propios tickets abiertos.
+        $titulo = mb_substr(trim((string)($_POST['titulo'] ?? '')), 0, 60);
+        $descripcion = mb_substr(trim((string)($_POST['descripcion'] ?? '')), 0, 100);
+        $prioridad = (string)($_POST['prioridad'] ?? '');
+
+        if ($esPersonal) {
+            flash_y_volver(t('msgSinPermisoEditar'), false);
+        } elseif ($titulo === '' || $descripcion === '' || !in_array($prioridad, ['Alta', 'Media', 'Baja'], true)) {
+            flash_y_volver(t('msgCompletarCampos'), false);
+        } elseif ($ticketsRepo->actualizarPropio((int)$_POST['editar'], (int)$usuario['ci_usuario'], $titulo, $descripcion, $prioridad)) {
+            flash_y_volver(t('msgTicketEditado'), true);
+        } else {
+            flash_y_volver(t('msgTicketNoEditable'), false);
         }
     } else {
         // Un solicitante solo puede abrir tickets a su propio nombre.
@@ -32,17 +47,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $prioridad = (string)($_POST['prioridad'] ?? '');
 
         if ($ci <= 0 || $titulo === '' || $descripcion === '' || !in_array($prioridad, ['Alta', 'Media', 'Baja'], true)) {
-            $mensaje = 'Completá todos los campos correctamente';
+            flash_y_volver(t('msgCompletarCampos'), false);
         } elseif ($ticketsRepo->guardar(new Ticket($titulo, $descripcion, $ci, $prioridad))) {
-            $mensaje = t('msgTicketCreado');
+            flash_y_volver(t('msgTicketCreado'), true);
         } else {
-            $mensaje = 'No se pudo crear el ticket';
+            flash_y_volver(t('msgTicketNoCreado'), false);
         }
     }
 }
 
-$tickets = $ticketsRepo->listarConSolicitante();
-$usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
+$flash = flash_tomar();
+// El personal ve todos los tickets; un solicitante solo los suyos.
+$tickets = $ticketsRepo->listarConSolicitante($esPersonal ? null : (int)$usuario['ci_usuario']);
+$usuarios = (new UsuarioRepository())->listarParaSeleccion();
+
+// Edición: ?editar=ID precarga el formulario con un ticket propio todavía abierto.
+$ticketEditar = null;
+if (!$esPersonal && isset($_GET['editar'])) {
+    $ticketEditar = $ticketsRepo->obtenerPropio((int)$_GET['editar'], (int)$usuario['ci_usuario']);
+    if ($ticketEditar !== null && $ticketEditar['estado'] === 'Cerrado') {
+        $ticketEditar = null;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $idioma ?>">
@@ -85,32 +111,43 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
 
         <form method="POST">
             <?= csrf_campo() ?>
+            <?php if ($ticketEditar !== null): ?>
+                <input type="hidden" name="editar" value="<?= e($ticketEditar['id_ticket']) ?>">
+                <p class="mensaje info"><?= t('editandoTicket') ?> #<?= e($ticketEditar['id_ticket']) ?></p>
+            <?php endif; ?>
             <label for="ciSolicitante"><?= t('labelSolicitante') ?></label>
+            <?php if ($esPersonal): ?>
             <select id="ciSolicitante" name="ciSolicitante" required>
                 <option value=""><?= t('opcionSeleccionarSolicitante') ?></option>
                 <?php foreach ($usuarios as $u): ?>
                     <option value="<?= e($u['ci_usuario']) ?>"><?= e($u['nom']) ?> <?= e($u['ape']) ?></option>
                 <?php endforeach; ?>
             </select>
+            <?php else: ?>
+            <p class="mensaje info"><?= t('avisoATuNombre') ?><?= e($usuario['nom']) ?> <?= e($usuario['ape']) ?></p>
+            <?php endif; ?>
 
             <label for="titulo"><?= t('labelTitulo') ?></label>
-            <input type="text" id="titulo" name="titulo" placeholder="<?= t('placeholderTitulo') ?>" required>
+            <input type="text" id="titulo" name="titulo" maxlength="60" placeholder="<?= t('placeholderTitulo') ?>" value="<?= e($ticketEditar['titulo'] ?? '') ?>" required>
 
             <label for="prioridad"><?= t('labelPrioridad') ?></label>
             <select id="prioridad" name="prioridad" required>
                 <option value=""><?= t('opcionSeleccionar') ?></option>
-                <option value="Alta"><?= tv('Alta') ?></option>
-                <option value="Media"><?= tv('Media') ?></option>
-                <option value="Baja"><?= tv('Baja') ?></option>
+                <?php foreach (['Alta', 'Media', 'Baja'] as $prio): ?>
+                    <option value="<?= $prio ?>"<?= ($ticketEditar['prioridad'] ?? '') === $prio ? ' selected' : '' ?>><?= tv($prio) ?></option>
+                <?php endforeach; ?>
             </select>
 
             <label for="descripcion"><?= t('labelDescripcionProblema') ?></label>
-            <textarea id="descripcion" name="descripcion" placeholder="<?= t('placeholderDescripcion') ?>" required></textarea>
+            <textarea id="descripcion" name="descripcion" maxlength="100" placeholder="<?= t('placeholderDescripcion') ?>" required><?= e($ticketEditar['descripcion'] ?? '') ?></textarea>
 
-            <button type="submit"><?= t('botonCrearTicket') ?></button>
+            <button type="submit"><?= $ticketEditar !== null ? t('botonGuardarCambios') : t('botonCrearTicket') ?></button>
+            <?php if ($ticketEditar !== null): ?>
+                <a href="tickets.php" class="btn-sm" style="margin-left:8px;"><?= t('botonCancelar') ?></a>
+            <?php endif; ?>
         </form>
 
-        <?php if ($mensaje !== ''): ?><p class="mensaje"><?= e($mensaje) ?></p><?php endif; ?>
+        <?= flash_html($flash) ?>
 
         <div class="tabla-wrapper">
             <table>
@@ -125,7 +162,7 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
                         <tr>
                             <td><?= $i ?></td>
                             <td><?= e($t['fechaCreacion']) ?></td>
-                            <td><?= e($t['nom']) ?> <?= e($t['ape']) ?></td>
+                            <td><?= e(nombre_persona($t)) ?></td>
                             <td><?= e($t['titulo']) ?></td>
                             <td><span class="badge <?= $prioClase ?>"><?= tv($t['prioridad']) ?></span></td>
                             <td><?= e($t['descripcion']) ?></td>
@@ -138,9 +175,13 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
                                         <button type="submit" class="btn-sm btn-success"><?= t('botonCerrar') ?></button>
                                     </form>
                                 <?php endif; ?>
+                                <?php if ($abierto && !$esPersonal): ?>
+                                    <a href="?editar=<?= e($t['id_ticket']) ?>" class="btn-sm"><?= t('botonEditar') ?></a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if ($tickets === []): ?><tr><td colspan="8" class="empty-state"><?= t('sinRegistros') ?></td></tr><?php endif; ?>
                 </tbody>
             </table>
         </div>
