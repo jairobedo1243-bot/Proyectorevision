@@ -8,50 +8,53 @@ $auth = new SessionAuth();
 $usuario = $auth->requireLogin();
 $permiso = $auth->requirePageAccess('usuarios.php', $usuario);
 $idioma = Translator::currentLanguage();
-$mensaje = '';
-$exito = false;
 
 $repo = new UsuarioRepository();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_valido() || !$permiso['usuariosAdministrar']) {
-        $mensaje = 'Solicitud no válida, recargá la página';
+        flash_y_volver(t('msgSolicitudInvalida'), false);
     } elseif (isset($_POST['eliminar'])) {
         $ci = (int)$_POST['eliminar'];
         if ($ci === (int)$usuario['ci_usuario']) {
-            $mensaje = 'No podés eliminar tu propio usuario';
+            flash_y_volver(t('msgNoEliminarPropio'), false);
         } elseif ($repo->eliminar($ci)) {
-            $mensaje = t('msgUsuarioEliminado');
-            $exito = true;
+            flash_y_volver(t('msgUsuarioEliminado'), true);
         } else {
-            $mensaje = 'No se pudo eliminar (el usuario tiene préstamos o tickets)';
+            flash_y_volver(t('msgUsuarioNoEliminado'), false);
         }
     } else {
         $correo = trim((string)($_POST['correo'] ?? ''));
         $rol = (string)($_POST['rol'] ?? '');
+        $nombre = trim((string)($_POST['nombre'] ?? ''));
         $nuevo = Usuario::crearDesdeFormulario(
             trim((string)($_POST['cedula'] ?? '')),
-            trim((string)($_POST['nombre'] ?? '')),
+            $nombre,
             $correo,
             $rol
         );
 
         if ($nuevo === null) {
-            $mensaje = t('msgCedulaInvalida');
+            flash_y_volver(t('msgCedulaInvalida'), false);
+        } elseif ($nombre === '') {
+            flash_y_volver(t('msgNombreInvalido'), false);
         } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL) || strlen($correo) > 80) {
-            $mensaje = 'El correo no es válido';
+            flash_y_volver(t('msgCorreoInvalido'), false);
         } elseif (!in_array($rol, ['Solicitante', 'Tecnico', 'Administrador'], true)) {
-            $mensaje = 'El rol no es válido';
+            flash_y_volver(t('msgRolInvalido'), false);
         } elseif (!$repo->guardar($nuevo)) {
-            $mensaje = 'No se pudo agregar (la cédula o el correo ya existen)';
+            flash_y_volver(t('msgUsuarioNoAgregado'), false);
         } else {
-            $mensaje = t('msgUsuarioAgregado') . $nuevo->getNom() . ' ' . $nuevo->getApe()
-                . ' — Contraseña inicial: ' . $nuevo->getContrasenaInicial() . ' (anotala, no se vuelve a mostrar)';
-            $exito = true;
+            flash_y_volver(
+                t('msgUsuarioAgregado') . trim($nuevo->getNom() . ' ' . $nuevo->getApe())
+                . t('msgContrasenaInicial') . $nuevo->getContrasenaInicial() . t('msgAnotala'),
+                true
+            );
         }
     }
 }
 
+$flash = flash_tomar();
 $resultado = $repo->listar();
 ?>
 <!DOCTYPE html>
@@ -100,10 +103,10 @@ $resultado = $repo->listar();
             <input type="text" id="cedulaUsuario" name="cedula" placeholder="<?= t('placeholderCedula') ?>" maxlength="12" required>
 
             <label for="nombreUsuario"><?= t('labelNombreCompleto') ?></label>
-            <input type="text" id="nombreUsuario" name="nombre" placeholder="<?= t('placeholderNombre') ?>" required>
+            <input type="text" id="nombreUsuario" name="nombre" maxlength="41" placeholder="<?= t('placeholderNombre') ?>" required>
 
             <label for="correoUsuario"><?= t('labelCorreo') ?></label>
-            <input type="email" id="correoUsuario" name="correo" placeholder="<?= t('placeholderCorreo') ?>" required>
+            <input type="email" id="correoUsuario" name="correo" maxlength="80" placeholder="<?= t('placeholderCorreo') ?>" required>
 
             <label for="rolUsuario"><?= t('labelRol') ?></label>
             <select id="rolUsuario" name="rol" required>
@@ -116,7 +119,7 @@ $resultado = $repo->listar();
             <button type="submit"><?= t('botonAgregarUsuario') ?></button>
         </form>
 
-        <?php if ($mensaje !== ''): ?><p class="mensaje <?= $exito ? 'exito' : 'error' ?>"><?= e($mensaje) ?></p><?php endif; ?>
+        <?= flash_html($flash) ?>
 
         <div class="tabla-wrapper">
             <table>
@@ -130,12 +133,14 @@ $resultado = $repo->listar();
                             <td><?= e($fila['ci_usuario']) ?></td>
                             <td><?= e($fila['nom']) ?> <?= e($fila['ape']) ?></td>
                             <td><?= e($fila['email']) ?></td>
-                            <td><span class="badge badge-info"><?= tv($fila['rol']) ?></span></td>
-                            <td><form method="post" style="display:inline" onsubmit="return confirm('<?= t('confirmEliminarUsuario') ?>')">
+                            <td><span class="badge <?= e($auth->permissionsForRole((string)$fila['rol'])['clase']) ?>"><?= e(tv((string)$fila['rol'])) ?></span></td>
+                            <td><?php if ((int)$fila['ci_usuario'] !== (int)$usuario['ci_usuario']): ?>
+                                <form method="post" style="display:inline" onsubmit="return confirm(<?= e(json_encode(t('confirmEliminarUsuario'), JSON_UNESCAPED_UNICODE)) ?>)">
                                     <?= csrf_campo() ?>
                                     <input type="hidden" name="eliminar" value="<?= e($fila['ci_usuario']) ?>">
                                     <button type="submit" class="btn-danger btn-sm"><?= t('botonEliminar') ?></button>
-                                </form></td>
+                                </form>
+                            <?php endif; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

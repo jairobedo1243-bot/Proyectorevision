@@ -52,7 +52,7 @@ class SessionAuth
      */
     public function autenticar(string $email, string $contrasena): bool
     {
-        // Si hubo muchos intentos fallidos, se bloquea 1 minuto.
+        // Si hubo 5 intentos fallidos, se bloquea 10 minutos.
         if ($this->estaBloqueado()) {
             return false;
         }
@@ -62,7 +62,7 @@ class SessionAuth
         if ($usuario === null || !password_verify($contrasena, (string)($usuario['contrasena'] ?? ''))) {
             $_SESSION['intentos'] = (int)($_SESSION['intentos'] ?? 0) + 1;
             if ($_SESSION['intentos'] >= 5) {
-                $_SESSION['bloqueo_hasta'] = time() + 60;
+                $_SESSION['bloqueo_hasta'] = time() + 600; // bloquea 10 minutos
                 $_SESSION['intentos'] = 0;
             }
             usleep(400000); // frena los ataques de fuerza bruta

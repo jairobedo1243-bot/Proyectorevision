@@ -8,7 +8,6 @@ $auth = new SessionAuth();
 $usuario = $auth->requireLogin();
 $permiso = $auth->requirePageAccess('tickets.php', $usuario);
 $idioma = Translator::currentLanguage();
-$mensaje = '';
 
 $ticketsRepo = new TicketRepository();
 
@@ -16,13 +15,14 @@ $esPersonal = $permiso['ticketsCerrar']; // Administrador y Técnico
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrf_valido()) {
-        $mensaje = 'Solicitud no válida, recargá la página';
+        flash_y_volver(t('msgSolicitudInvalida'), false);
     } elseif (isset($_POST['cerrar'])) {
-        if ($esPersonal) {
-            $ticketsRepo->cerrar((int)$_POST['cerrar']);
-            $mensaje = t('msgTicketCerrado');
+        if (!$esPersonal) {
+            flash_y_volver(t('msgSinPermisoCerrar'), false);
+        } elseif ($ticketsRepo->cerrar((int)$_POST['cerrar'])) {
+            flash_y_volver(t('msgTicketCerrado'), true);
         } else {
-            $mensaje = 'No tenés permiso para cerrar tickets';
+            flash_y_volver(t('msgTicketYaCerrado'), false);
         }
     } else {
         // Un solicitante solo puede abrir tickets a su propio nombre.
@@ -32,17 +32,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $prioridad = (string)($_POST['prioridad'] ?? '');
 
         if ($ci <= 0 || $titulo === '' || $descripcion === '' || !in_array($prioridad, ['Alta', 'Media', 'Baja'], true)) {
-            $mensaje = 'Completá todos los campos correctamente';
+            flash_y_volver(t('msgCompletarCampos'), false);
         } elseif ($ticketsRepo->guardar(new Ticket($titulo, $descripcion, $ci, $prioridad))) {
-            $mensaje = t('msgTicketCreado');
+            flash_y_volver(t('msgTicketCreado'), true);
         } else {
-            $mensaje = 'No se pudo crear el ticket';
+            flash_y_volver(t('msgTicketNoCreado'), false);
         }
     }
 }
 
-$tickets = $ticketsRepo->listarConSolicitante();
-$usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
+$flash = flash_tomar();
+// El personal ve todos los tickets; un solicitante solo los suyos.
+$tickets = $ticketsRepo->listarConSolicitante($esPersonal ? null : (int)$usuario['ci_usuario']);
+$usuarios = (new UsuarioRepository())->listarParaSeleccion();
 ?>
 <!DOCTYPE html>
 <html lang="<?= $idioma ?>">
@@ -86,15 +88,19 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
         <form method="POST">
             <?= csrf_campo() ?>
             <label for="ciSolicitante"><?= t('labelSolicitante') ?></label>
+            <?php if ($esPersonal): ?>
             <select id="ciSolicitante" name="ciSolicitante" required>
                 <option value=""><?= t('opcionSeleccionarSolicitante') ?></option>
                 <?php foreach ($usuarios as $u): ?>
                     <option value="<?= e($u['ci_usuario']) ?>"><?= e($u['nom']) ?> <?= e($u['ape']) ?></option>
                 <?php endforeach; ?>
             </select>
+            <?php else: ?>
+            <p class="mensaje info"><?= t('avisoATuNombre') ?><?= e($usuario['nom']) ?> <?= e($usuario['ape']) ?></p>
+            <?php endif; ?>
 
             <label for="titulo"><?= t('labelTitulo') ?></label>
-            <input type="text" id="titulo" name="titulo" placeholder="<?= t('placeholderTitulo') ?>" required>
+            <input type="text" id="titulo" name="titulo" maxlength="60" placeholder="<?= t('placeholderTitulo') ?>" required>
 
             <label for="prioridad"><?= t('labelPrioridad') ?></label>
             <select id="prioridad" name="prioridad" required>
@@ -105,12 +111,12 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
             </select>
 
             <label for="descripcion"><?= t('labelDescripcionProblema') ?></label>
-            <textarea id="descripcion" name="descripcion" placeholder="<?= t('placeholderDescripcion') ?>" required></textarea>
+            <textarea id="descripcion" name="descripcion" maxlength="100" placeholder="<?= t('placeholderDescripcion') ?>" required></textarea>
 
             <button type="submit"><?= t('botonCrearTicket') ?></button>
         </form>
 
-        <?php if ($mensaje !== ''): ?><p class="mensaje"><?= e($mensaje) ?></p><?php endif; ?>
+        <?= flash_html($flash) ?>
 
         <div class="tabla-wrapper">
             <table>
@@ -141,6 +147,7 @@ $usuarios = (new UsuarioRepository())->listarSolicitantesYTecnicos();
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php if ($tickets === []): ?><tr><td colspan="8" class="empty-state"><?= t('sinRegistros') ?></td></tr><?php endif; ?>
                 </tbody>
             </table>
         </div>

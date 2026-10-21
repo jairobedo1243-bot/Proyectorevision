@@ -19,9 +19,10 @@ class UsuarioRepository
         );
     }
 
+    /** Devuelve false si no se pudo borrar (no existe o tiene préstamos/tickets/servicios). */
     public function eliminar(int $ci): bool
     {
-        return Conexion::execute('DELETE FROM usuario WHERE ci_usuario = ?', [$ci]);
+        return Conexion::filasAfectadas('DELETE FROM usuario WHERE ci_usuario = ?', [$ci]) === 1;
     }
 
     public function buscarPorEmail(string $email): ?array
@@ -42,5 +43,11 @@ class UsuarioRepository
     public function listarSolicitantesYTecnicos(): array
     {
         return Conexion::select("SELECT ci_usuario, nom, ape FROM usuario WHERE rol IN ('Solicitante', 'Tecnico') ORDER BY nom");
+    }
+
+    /** Todos los usuarios, para elegir a quién se le abre un ticket. */
+    public function listarParaSeleccion(): array
+    {
+        return Conexion::select('SELECT ci_usuario, nom, ape FROM usuario ORDER BY nom, ape');
     }
 }

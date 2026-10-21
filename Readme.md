@@ -23,7 +23,7 @@ Es una aplicación PHP renderizada en el servidor: cada página `.php` procesa l
    CREATE USER 'sgrsi_app'@'localhost' IDENTIFIED BY 'TU_CLAVE_LARGA';
    GRANT SELECT, INSERT, UPDATE, DELETE ON BD_SGRSI.* TO 'sgrsi_app'@'localhost';
    ```
-   Luego copiá `config/secreto.ejemplo.php` como `config/secreto.php` y poné ahí el mismo usuario y clave. Ese archivo no se sube a GitHub.
+   Luego copiá `config/secreto.ejemplo.php` como `config/secreto.php` y poné ahí el mismo usuario y clave (y `DB_PORT` si tu MySQL no usa el puerto 3306). Ese archivo no se sube a GitHub.
    Además, en `C:\xampp\mysql\bin\my.ini` agregá `bind-address=127.0.0.1` bajo `[mysqld]` y reiniciá MySQL, para que solo se pueda entrar desde esta computadora.
 5. Configurá Apache para que el navegador solo pueda llegar a la carpeta `public/`. Abrí `C:\xampp\apache\conf\extra\httpd-vhosts.conf`, agregá al final este bloque (ajustá la ruta si tu carpeta tiene otro nombre) y reiniciá Apache desde el panel de XAMPP:
    ```apache
@@ -150,7 +150,9 @@ proyectorevision/
 - No se pueden registrar dos usuarios con el mismo correo (`UNIQUE` en la base).
 - Las contraseñas se guardan con hash bcrypt, nunca en texto plano.
 - El formulario de préstamos solo ofrece equipos con estado `Disponible`; al prestar, el equipo pasa a `Prestado`, y al devolverlo vuelve a `Disponible`.
-- Solo Administrador y Técnico pueden cerrar tickets; solo Administrador gestiona usuarios.
+- Solo Administrador y Técnico pueden cerrar tickets y registrar devoluciones; solo Administrador gestiona usuarios.
+- Un Solicitante solo ve sus propios préstamos y tickets, y los registra siempre a su nombre; el personal (Administrador y Técnico) ve todos y elige el solicitante.
+- La fecha de devolución de un préstamo no puede ser anterior a hoy (hora de Uruguay).
 
 ## Seguridad
 
@@ -158,17 +160,17 @@ proyectorevision/
 - **Segunda barrera:** cada archivo de `config/`, `negocio/`, `datos/` e `includes/` empieza con `defined('ENTRYPOINT') || (http_response_code(404) && exit);`. Si alguien lo abre directo, responde 404; solo funciona cuando lo carga `bootstrap.php`.
 - **Consultas preparadas** (`?` + `bind_param`) en `datos/Conexion.php`, contra inyección SQL.
 - **Contraseñas con bcrypt** (`password_hash` / `password_verify`); en la sesión nunca se guarda el hash.
-- **Login:** bloqueo de 1 minuto tras 5 intentos fallidos, espera de 0,4 s por intento fallido y `session_regenerate_id` al entrar. La cookie de sesión es `httponly` y `samesite=Lax`.
-- **CSRF:** los formularios que modifican datos llevan un token oculto (`csrf_campo()` / `csrf_valido()`).
+- **Login:** token CSRF, bloqueo de 10 minutos tras 5 intentos fallidos, espera de 0,4 s por intento fallido y `session_regenerate_id` al entrar. La cookie de sesión es `httponly` y `samesite=Lax`.
+- **CSRF:** todos los formularios (incluido el login) llevan un token oculto (`csrf_campo()` / `csrf_valido()`).
+- **F5 seguro:** después de cada formulario la página redirige (POST → redirección → GET) y muestra el mensaje una sola vez, así recargar no duplica tickets ni préstamos.
 - **XSS:** todo lo que se muestra en pantalla pasa por `e()` (`htmlspecialchars`).
-- **Errores:** no se muestran en pantalla (`display_errors = 0`); el detalle queda en `C:\xampp\apache\logs\error.log`.
+- **Errores:** no se muestran en pantalla (`display_errors = 0`). Si la base no responde, se muestra una página de error clara y el detalle queda en `C:\xampp\apache\logs\error.log`.
 
 ## Pendientes conocidos
 
 - Borrar `public/generar_hash.php` y los usuarios de prueba antes de publicar.
 - Usar en `config/secreto.php` un usuario propio de MySQL en lugar de `root` (paso 4 de la instalación).
-- Si una consulta falla al prepararse (por ejemplo, porque nombra una columna que no existe en la base), la excepción no se atrapa y el navegador muestra un error 500 sin explicación. El motivo se ve en `C:\xampp\apache\logs\error.log`. Si pasa después de cambiar el esquema, volvé a importar `sql/BD_SGRSI.sql`.
-- El formulario de `login.php` no lleva token CSRF (los demás formularios sí).
+- Si aparece la página "No se pudo trabajar con la base de datos", el motivo exacto está en `C:\xampp\apache\logs\error.log`. Si pasa después de cambiar el esquema, volvé a importar `sql/BD_SGRSI.sql`.
 - La carpeta `app/` es una versión anterior que las páginas no usan; se puede borrar.
 
 ## Equipo de desarrollo

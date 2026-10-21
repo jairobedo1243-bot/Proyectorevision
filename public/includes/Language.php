@@ -122,6 +122,27 @@ class Translator
             'thDescripcion' => 'Descripción',
             'thTicket' => 'Ticket',
             'thServicio' => 'Servicio',
+            'msgSolicitudInvalida' => 'Solicitud no válida, recargá la página',
+            'msgCompletarCampos' => 'Completá todos los campos correctamente',
+            'msgEquipoNoGuardado' => 'No se pudo guardar el equipo (¿el número de serie ya existe?)',
+            'msgNoEliminarPropio' => 'No podés eliminar tu propio usuario',
+            'msgUsuarioNoEliminado' => 'No se pudo eliminar (el usuario tiene préstamos, tickets o servicios registrados)',
+            'msgNombreInvalido' => 'Escribí el nombre del usuario',
+            'msgCorreoInvalido' => 'El correo no es válido',
+            'msgRolInvalido' => 'El rol no es válido',
+            'msgUsuarioNoAgregado' => 'No se pudo agregar (la cédula o el correo ya existen)',
+            'msgContrasenaInicial' => ' — Contraseña inicial: ',
+            'msgAnotala' => ' (anotala, no se vuelve a mostrar)',
+            'msgSinPermisoDevolver' => 'No tenés permiso para registrar devoluciones',
+            'msgPrestamoYaDevuelto' => 'Ese préstamo ya estaba devuelto',
+            'msgElegirSolicitanteEquipo' => 'Elegí un solicitante y un equipo',
+            'msgFechaInvalida' => 'La fecha de devolución no es válida (no puede ser anterior a hoy)',
+            'msgPrestamoNoRegistrado' => 'No se pudo registrar (el equipo ya no está disponible)',
+            'msgSinPermisoCerrar' => 'No tenés permiso para cerrar tickets',
+            'msgTicketYaCerrado' => 'Ese ticket ya estaba cerrado',
+            'msgTicketNoCreado' => 'No se pudo crear el ticket',
+            'avisoATuNombre' => 'Se registra a tu nombre: ',
+            'sinRegistros' => 'No hay registros todavía.',
         ],
         'en' => [
             'appSubtitulo' => 'Resource and IT Support Management System',
@@ -238,6 +259,27 @@ class Translator
             'thDescripcion' => 'Description',
             'thTicket' => 'Ticket',
             'thServicio' => 'Service',
+            'msgSolicitudInvalida' => 'Invalid request, please reload the page',
+            'msgCompletarCampos' => 'Please fill in all fields correctly',
+            'msgEquipoNoGuardado' => 'Could not save the equipment (does the serial number already exist?)',
+            'msgNoEliminarPropio' => 'You cannot delete your own user',
+            'msgUsuarioNoEliminado' => 'Could not delete (the user has loans, tickets or services on record)',
+            'msgNombreInvalido' => 'Enter the user\'s name',
+            'msgCorreoInvalido' => 'The email address is not valid',
+            'msgRolInvalido' => 'The role is not valid',
+            'msgUsuarioNoAgregado' => 'Could not add (the ID or email already exists)',
+            'msgContrasenaInicial' => ' — Initial password: ',
+            'msgAnotala' => ' (write it down, it will not be shown again)',
+            'msgSinPermisoDevolver' => 'You are not allowed to register returns',
+            'msgPrestamoYaDevuelto' => 'That loan was already returned',
+            'msgElegirSolicitanteEquipo' => 'Choose a requester and a piece of equipment',
+            'msgFechaInvalida' => 'The return date is not valid (it cannot be earlier than today)',
+            'msgPrestamoNoRegistrado' => 'Could not register (the equipment is no longer available)',
+            'msgSinPermisoCerrar' => 'You are not allowed to close tickets',
+            'msgTicketYaCerrado' => 'That ticket was already closed',
+            'msgTicketNoCreado' => 'Could not create the ticket',
+            'avisoATuNombre' => 'It will be registered under your name: ',
+            'sinRegistros' => 'No records yet.',
         ],
     ];
 
@@ -290,19 +332,33 @@ class Translator
         ],
     ];
 
+    // Idioma ya calculado en esta petición (así la cookie se envía una sola vez,
+    // antes de que empiece el HTML, y no se repite en cada t()).
+    private static ?string $actual = null;
+
     public static function currentLanguage(): string
     {
+        if (self::$actual !== null) {
+            return self::$actual;
+        }
+
         if (isset($_GET['idioma']) && in_array($_GET['idioma'], ['es', 'en'], true)) {
-            $language = $_GET['idioma'];
-            setcookie('idioma', $language, time() + 60 * 60 * 24 * 365, '/');
-            return $language;
+            self::$actual = $_GET['idioma'];
+            if (!headers_sent()) {
+                setcookie('idioma', self::$actual, [
+                    'expires' => time() + 60 * 60 * 24 * 365,
+                    'path' => '/',
+                    'samesite' => 'Lax',
+                ]);
+            }
+            return self::$actual;
         }
 
         if (isset($_COOKIE['idioma']) && in_array($_COOKIE['idioma'], ['es', 'en'], true)) {
-            return $_COOKIE['idioma'];
+            return self::$actual = $_COOKIE['idioma'];
         }
 
-        return self::DEFAULT_LANGUAGE;
+        return self::$actual = self::DEFAULT_LANGUAGE;
     }
 
     public static function translate(string $key): string
